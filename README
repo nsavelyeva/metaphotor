@@ -1,0 +1,31 @@
+MetaPhotor is a web-application to serve as a small media-centre for personal and family photos and videos.
+
+Reason:
+  * I wanted to keep family photos & videos on a home server and search through them from a browser - by tags, locations, etc.
+  * Moreover, I wanted my metadata changes to metadata to be stored inside the media files in order to let them survive after copying/moving files.
+  * I got inspired by EXIF and FFMPEG, Highcharts + Highmaps, and Mapping APIs.
+
+Tools:
+  * Back-end: Flask microframework on the top of Python 3, modules geopy, PIL & piexif, multiprocessing.dummy for threading, argparse & logging.
+  * Database: SQLite (which is inbuilt in Python) + SQLAlchemy
+  * Front-end: Bootstrap + jQuery + Font Awesome + higcharts & highmaps. All from CDN.
+
+Features:
+  * Discover photo and video files on the local storage and display the ongoing scan progress.
+  * Sophisticated search for media files based on their metadata - with tags autocompletion support.
+  * Read/Modify metadata inside photo and video files.
+  * Statistics in the form of pie charts and histograms.
+  * Geo positioning of a photo/video on the map.
+  * Ownership support for media files:
+      - scanned files are considered as common for all users including anonymous;
+      - uploaded files are considered as owned by an (authenticated) uploader.
+  * Listing media files:
+      - pagination;
+      - carousel, thumbnails and table views;
+      - pop-10: popular (most visited) media files;
+      - new-10: last created media files;
+      - fresh-10: last updated media files;
+      - lov-10: favourite media files (owned & popular).
+  * Besides MediaFiles, support of CRUD-operations for Locations, Users, Tags.
+  * Web interface to manage application settings.
+  * Support options to launch MetaPhotor from command line and application logging.

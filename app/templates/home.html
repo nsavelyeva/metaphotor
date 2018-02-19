@@ -1,0 +1,89 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+
+<div class="panel panel-info">
+    <div class="panel-heading">Meet MetaPhotor</div>
+    <div class="panel-body">
+        <p>MetaPhotor is a web-application to serve as a small media-centre for personal and family photos and videos.</p>
+    </div>
+</div>
+
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingZero">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseZero" aria-expanded="true" aria-controls="collapseZero">
+          Reason
+        </a>
+      </h4>
+    </div>
+    <div id="collapseZero" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingZero">
+      <div class="panel-body">
+          <ul>
+              <li>I wanted to keep family photos & videos on a home server and search through them from a browser - by tags, locations, etc.</li>
+              <li>Moreover, I wanted my metadata changes to metadata to be stored inside the media files in order to let them survive after copying/moving files.</li>
+              <li>I got inspired by EXIF and FFMPEG, Highcharts + Highmaps, and Mapping APIs.</li>
+          </ul>
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingOne">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+          Tools
+        </a>
+      </h4>
+    </div>
+    <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+      <div class="panel-body">
+          <ul>
+              <li>Back-end: Flask microframework on the top of Python 3, modules geopy, PIL & piexif, multiprocessing.dummy for threading, argparse & logging.</li>
+              <li>Database: SQLite (which is inbuilt in Python) + SQLAlchemy</li>
+              <li>Front-end: Bootstrap + jQuery + Font Awesome + higcharts & highmaps. All from CDN.</li>
+          </ul>
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingTwo">
+      <h4 class="panel-title">
+        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+          Features
+        </a>
+      </h4>
+    </div>
+    <div id="collapseTwo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
+      <div class="panel-body">
+          <ul>
+              <li>Discover photo and video files on the local storage and display the ongoing scan progress.</li>
+              <li>Sophisticated search for media files based on their metadata - with tags autocompletion support.</li>
+              <li>Read/Modify metadata inside photo and video files.</li>
+              <li>Statistics in the form of pie charts and histograms.</li>
+              <li>Geo positioning of a photo/video on the map.</li>
+              <li>Ownership support for media files:
+                  <ul>
+                      <li>scanned files are considered as common for all users including anonymous;</li>
+                      <li>uploaded files are considered as owned by an (authenticated) uploader.</li>
+                  </ul>
+              </li>
+              <li>Listing media files:
+                  <ul>
+                      <li>pagination;</li>
+                      <li>carousel, thumbnails and table views;</li>
+                      <li>pop-10: popular (most visited) media files;</li>
+                      <li>new-10: last created media files;</li>
+                      <li>fresh-10: last updated media files;</li>
+                      <li>lov-10: favourite media files (owned & popular).</li>
+                  </ul>
+              </li>
+              <li>Besides MediaFiles, support of CRUD-operations for Locations, Users, Tags.</li>
+              <li>Web interface to manage application settings.</li>
+              <li>Support options to launch MetaPhotor from command line and application logging.</li>
+          </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+
+<h5>View Settings</h5>
+<div>
+	<table class="table table-striped">
+		<tr><th>Setting</th><th>Value</th><th>Comment</th></tr>
+		{% for setting in settings.keys() %}
+		<tr>
+			<td>{{ setting }}</td>
+			<td style="white-space:pre"><span style='color:{% if settings[setting]["value"] in ["MISSING", "INVALID", "UNDEFINED"] %}red{% else %}green{% endif %}'>{{ settings[setting]["value"] | safe }}</span></td>
+			<td>{{ settings[setting]["comment"] }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+
+	<p>
+		<a class="btn btn-default" href="/settings/update">Change Settings</a>
+		<a class="btn btn-default" href="/settings/restore">Restore Defaults</a>
+		<a class="btn btn-default" href="javascript:scan_media()">Scan Media Files</a>
+	</p>
+
+</div>
+
+<div id="scan_progress"></div>
+
+{% endblock %}

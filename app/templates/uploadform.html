@@ -1,0 +1,25 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+
+{% from "_form.html" import render_field %}
+<div class="panel panel-info">
+    <div class="panel-heading">Please fill in the form</div>
+    <div class="panel-body">
+
+        <form method="POST" class="form-horizontal" enctype="multipart/form-data">
+            {% for field in form.__dict__._fields.keys() %}
+                {{ render_field(form[field]) }}
+            {% endfor %}
+            <div class="form-group">
+                 <div class="col-sm-offset-2 col-sm-10">
+                     <a class="btn btn-default" href="javascript:history.back()">Cancel</a>
+                     <button type="submit" class="btn btn-default">{{ submit_name }}</button>
+                 </div>
+           </div>
+        </form>
+
+     </div>
+</div>
+
+{% endblock %}

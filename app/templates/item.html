@@ -1,0 +1,29 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+
+<div class="panel panel-info">
+	<div class="panel-heading">View Item #{{ item['id'] }}</div>
+	<div class="panel-body">
+
+		<form id="delete_item_form" name="delete_item_form" action="./../delete/" method="POST">
+			<input id="item" name="item" type="hidden" value="">
+		</form>
+
+		<table class="table table-striped">
+			<tr><th>Property</th><th>Value</th></tr>
+			{% for field in item.keys() %}
+			<tr><td>{{ field | title }}</td><td>{{ item[field] }}</td>
+			{% endfor %}
+		</table>
+
+		<p>
+			<a class="btn btn-default" href="./../edit/{{ item['id'] }}">Edit</a>
+			<a class="btn btn-default" href="javascript:document.getElementById('item').value={{ item['id'] }};document.getElementById('delete_item_form').submit();">Delete</a>
+			<a class="btn btn-default" href="javascript:history.back()">Back</a>
+		</p>
+
+	</div>
+</div>
+
+{% endblock %}
