@@ -114,7 +114,7 @@ def remove_mediafile(mediafiles_id):
     return 'Removed Media File # %s from database and local storage.' % mediafiles_id, 'success'
 
 ## Users-related queries:
-def get_all_users(*fields):
+def get_all_users(fields):
     fields = fields or [Users.id, Users.login]
     data = Users.query.add_columns(*fields)
     return data
@@ -209,7 +209,7 @@ def find_location_by_attributes(city, country):
     return data
 
 #+
-def get_all_locations(*fields):
+def get_all_locations(fields):
     fields = fields or [Locations.id, Locations.city, Locations.country,
                         Locations.latitude, Locations.longitude]
     query = Locations.query.add_columns(*fields)
