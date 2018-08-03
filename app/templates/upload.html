@@ -1,0 +1,56 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+
+<br>
+
+{% from "_form.html" import render_field %}
+
+<div class="alert alert-info" role="alert">
+	Add new photo or video in 2 steps:
+	<ol>
+		<li>upload a file,</li>
+		<li>optional: adjust metadata - this can be done later, any time!</li>
+	</ol>
+</div>
+
+<div class="card">
+	<div class="card-body">
+		<h5 class="card-title">Keep in mind</h5>
+		<p class="card-text">
+			Once the file is uploaded, you will be redirected to the edit page where you can change the path and
+			the file will be moved there from default location. You can do this any time you decide to edit path.
+			<br>From the below list of already existing paths, copy the desired path to move the file into.
+			<br>Note: specifying non-existing folders is allowed - they will be created.
+		</p>
+		
+	</div>
+</div>
+
+<br>
+
+<form method="POST" class="form-horizontal" enctype="multipart/form-data">
+	{% for field in form.__dict__._fields.keys() %}
+	{{ render_field(form[field]) }}
+	{% endfor %}
+	<div class="form-group">
+		<div class="col-sm-offset-2 col-sm-10">
+			<a class="btn btn-info" href="javascript:history.back()" role="button">Cancel</a>
+			<button type="submit" class="btn btn-success">{{ submit_name }}</button>
+		</div>
+	</div>
+</form>
+
+<br>
+
+<div class="card">
+	<div class="card-body">
+		<h5 class="card-title">Folder Tree</h5>
+		<p class="card-text">
+			<pre>{{ info | safe }}</pre>
+		</p>
+		
+	</div>
+</div>
+
+{% endblock %}

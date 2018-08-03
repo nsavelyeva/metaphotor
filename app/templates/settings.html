@@ -2,23 +2,30 @@
 
 {% block content %}
 
-<h5>View Settings</h5>
+<br>
+<div class="alert alert-info" role="alert">View Settings</div>
+<br>
+
 <div>
 	<table class="table table-striped">
 		<tr><th>Setting</th><th>Value</th><th>Comment</th></tr>
 		{% for setting in settings.keys() %}
 		<tr>
 			<td>{{ setting }}</td>
-			<td style="white-space:pre"><span style='color:{% if settings[setting]["value"] in ["MISSING", "INVALID", "UNDEFINED"] %}red{% else %}green{% endif %}'>{{ settings[setting]["value"] | safe }}</span></td>
-			<td>{{ settings[setting]["comment"] }}</td>
+			<td style="white-space:pre"><span style='color:{% if settings[setting]["value"] in ["MISSING", "INVALID", "UNDEFINED"] %}red{% else %}green{% endif %}'>{{ settings[setting]['value'] | safe }}</span></td>
+			<td>{{ settings[setting]['comment'] }}</td>
 		</tr>
 		{% endfor %}
 	</table>
 
 	<p>
-		<a class="btn btn-default" href="/settings/update">Change Settings</a>
-		<a class="btn btn-default" href="/settings/restore">Restore Defaults</a>
-		<a class="btn btn-default" href="javascript:scan_media()">Scan Media Files</a>
+		<a class="btn btn-info" href="/settings/update" role="button">Change Settings</a>
+		<a class="btn btn-info" href="/settings/restore" role="button">Restore Defaults</a>
+		{% if session.get('logged_in') %}
+		<a class="btn btn-info" href="javascript:scan_media()" role="button">Scan Media Files</a>
+		{% else %}
+		<a class="btn btn-info" href=# role="button">Scan Media Files (login required)</a>
+		{% endif %}
 	</p>
 
 </div>

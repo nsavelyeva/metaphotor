@@ -1,0 +1,225 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+
+<div id="by_type" style="float: left; min-width: 400px; height: auto; max-width: 600px; margin: 0 auto"></div>
+<div id="by_year_type" style="float: right; min-width: 600px; height: auto; max-width: 800px; margin: 0 auto"></div>
+<br>
+<div id="by_type_year" style="float: center; min-width: 800px; height: auto; max-width: 1000px; margin: 0 auto"></div>
+<br>
+<div id="by_city" style="float: left; height: auto; min-width: 500px; max-width: 600px; margin: 0 auto"></div>
+<div id="by_country" style="float: right; height: auto; min-width: 500px; max-width: 600px; margin: 0 auto"></div>
+
+<!-- Uncomment below if you want to use highmaps from CDN
+<script src="https://code.highcharts.com/highcharts.js"></script>
+-->
+
+<script src="{{ url_for('static', filename='js/highcharts.js') }}"></script>
+
+<script>
+	var data_by_type = JSON.parse('{{ data_by_type | safe }}')
+	var data_by_year_type = JSON.parse('{{ data_by_year_type | safe }}')
+	var data_by_type_year = JSON.parse('{{ data_by_type_year | safe }}')
+	var data_by_city = JSON.parse('{{ data_by_city | safe }}')
+	var data_by_country = JSON.parse('{{ data_by_country | safe }}')
+
+function pretty_size(size) {
+	//Convert integer number of bytes to a string in a human-friendly format
+	labels = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB']
+	size = Number(size)
+	for (i=0; i < labels.length; i++) {
+		if (Math.abs(size) < 1024.0) {
+			return size.toFixed(2) + ' ' + labels[i] //'%3.1f %s' % (size, fmt)
+		}
+		size /= 1024.0
+	}
+	return size.toFixed(2) + ' Yi' //'%.1f %s' % (size, 'Yi')
+}
+
+
+Highcharts.chart('by_type', {
+	series: data_by_type,
+	chart: {
+		type: 'column'
+	},
+	title: {
+		text: 'Media Files count and size occupied on disk'
+	},
+	xAxis: {
+		categories: ['Files Size', 'Files Count']
+	},
+	yAxis: {
+		min: 0,
+		title: {
+			text: 'By type - Photos/Videos'
+		}
+	},
+	tooltip: {
+		formatter: function() {
+			msg = '<b>'+ this.x +'</b>',
+			total = 0;
+			$.each(this.points, function(i, point) {
+				if (this.x == 'Files Size') {
+					details = '<b>' + pretty_size(point.y) + '</b> (' + point.y + ' bytes)'
+				} else {
+					details = point.y + ' snapshot(s)'
+				}
+				msg += '<br><span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' + details + ' - <b>' + point.percentage.toFixed(2) +'%</b>'
+				total += point.y;
+			});
+			if (this.x == 'Files Size') {
+				msg += '<br><b>Total: ' + pretty_size(total)  + '</b> (' + total + ' bytes)'
+			} else {
+				msg += '<br><b>Total: ' + total + ' snapshot(s)</b>'
+			}
+		return msg;
+		},
+		shared: true,
+	},
+	plotOptions: {
+		column: {
+			stacking: 'percent'
+		}
+	},
+});
+
+Highcharts.chart('by_year_type', {
+	series: data_by_year_type['values'],
+	chart: {
+		type: 'bar'
+	},
+	title: {
+		text: 'Photos & Videos per year'
+	},
+	xAxis: {
+		categories: data_by_year_type['years']
+	},
+	yAxis: {
+		min: 0,
+		title: {
+			text: 'By type grouped by year'
+		}
+	},
+	legend: {
+		reversed: true
+	},
+	tooltip: {
+		headerFormat: '<b>{point.key}</b><br>',
+		footerFormat: '<b>Total: {point.total}</b> snapshot(s)',
+		pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> snapshot(s) - <b>{point.percentage:.0f}%</b><br>',
+		shared: true,
+	},
+	plotOptions: {
+		series: {
+			stacking: 'normal'
+		}
+	},
+});
+
+
+Highcharts.chart('by_type_year', {
+	series: data_by_type_year,
+	chart: {
+		type: 'bar'
+	},
+	title: {
+		text: 'Photos & Videos over years'
+	},
+	xAxis: {
+		categories: ['Photo', 'Video']
+	},
+	yAxis: {
+		min: 0,
+		title: {
+			text: 'By year grouped by type'
+		}
+	},
+	legend: {
+		reversed: true
+	},
+	tooltip: {
+		headerFormat: '<b>{point.key}</b><br>',
+		footerFormat: '<b>Total: {point.total}</b>',
+		pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> snapshot(s) - <b>{point.percentage:.0f}%</b><br>',
+		shared: true,
+	},
+	plotOptions: {
+		series: {
+			stacking: 'normal',
+			dataLabels: {
+				enabled: true,
+				color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+			}
+		}
+	},
+});
+
+Highcharts.chart('by_city', {
+	chart: {
+		plotBackgroundColor: null,
+		plotBorderWidth: null,
+		plotShadow: false,
+		type: 'pie'
+	},
+	title: {
+		text: 'Photos & Videos per city'
+	},
+	tooltip: {
+		headerFormat: '<b>{point.key}</b><br>',
+		footerFormat: '<b>Total: {point.total}</b>',
+		pointFormat: '<b>{series.name}:</b> {point.y} snapshot(s) - {point.percentage:.1f}%<br>'
+	},
+	plotOptions: {
+		pie: {
+			allowPointSelect: true,
+			cursor: 'pointer',
+			dataLabels: {
+				enabled: true,
+				format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+			},
+			showInLegend: true
+		}
+	},
+	series: [{
+		name: 'Count',
+		colorByPoint: true,
+		data: data_by_city
+	}]
+});
+
+Highcharts.chart('by_country', {
+	chart: {
+		plotBackgroundColor: null,
+		plotBorderWidth: null,
+		plotShadow: false,
+		type: 'pie'
+	},
+	title: {
+		text: 'Photos & Videos per country'
+	},
+	tooltip: {
+		headerFormat: '<b>{point.key}</b><br>',
+		footerFormat: '<b>Total: {point.total}</b>',
+		pointFormat: '<b>{series.name}:</b> {point.y} snapshot(s) - {point.percentage:.1f}%<br>'
+	},
+	plotOptions: {
+		pie: {
+			allowPointSelect: true,
+			cursor: 'pointer',
+			dataLabels: {
+				enabled: true,
+				format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+			},
+			showInLegend: true
+		}
+	},
+	series: [{
+		name: 'Count',
+		colorByPoint: true,
+		data: data_by_country
+	}]
+});
+
+</script>
+
+{% endblock %}

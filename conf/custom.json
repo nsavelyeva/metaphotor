@@ -1,1 +1,1 @@
-{"MEDIA_FOLDER": "C:\\_WORK_\\Non-projects\\development\\data", "FFMPEG_PATH": "C:\\Users\\Natallia_Savelyeva\\Downloads\\ffmpeg-3.4-win64-static\\bin\\ffmpeg.exe", "MIN_FILESIZE": 524288, "MAX_FILESIZE": 1073741824, "ITEMS_PER_PAGE": 10}
+{"MEDIA_FOLDER": "d:\\_WORK_\\data-dev\\metaphotor\\media_sources\\", "FFMPEG_PATH": "d:\\_WORK_\\progs-dev\\ffmpeg\\bin\\ffmpeg.exe", "FFPROBE_PATH": "d:\\_WORK_\\progs-dev\\ffmpeg\\bin\\ffprobe.exe", "MIN_FILESIZE": 524288, "MAX_FILESIZE": 1073741824, "ITEMS_PER_PAGE": 10}

@@ -1,0 +1,106 @@
+<form id="search_form" name="search_form" action="/albums" method="GET">
+	<div class="input-group mb-3">
+		<input id="search" name="search" type="search" size="140" class="form-control" value="">
+		<div class="input-group-append">
+			<button type="button" class="btn btn-outline-secondary" title="Search" onclick="submit()"><i class="fa fa-search" aria-hidden="true"></i></button>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-3">
+			<legend>Search in:</legend>
+			<div class="form-check">
+				<input type="checkbox" id="search_in_path" class="form-check-input" name="search_in_path"{% if 'search_in_path' in args %}checked="checked"{% endif %}>
+				<label class="form-check-label" for="search_in_path">Path</label>
+			</div>
+			<div class="form-check">
+				<input type="checkbox" id="search_in_title" class="form-check-input" name="search_in_title"{% if 'search_in_title' in args %}checked="checked"{% endif %}>
+				<label class="form-check-label" for="search_in_title">Title</label>
+			</div>
+			<div class="form-check">
+				<input type="checkbox" id="search_in_tags" class="form-check-input" name="search_in_tags" {% if 'search_in_tags' in args %}checked="checked"{% endif %}>
+				<label class="form-check-label" for="search_in_tags">Tags</label>
+			</div>
+			<div class="form-check">
+				<input type="checkbox" id="search_in_description" class="form-check-input" name="search_in_description" {% if 'search_in_description' in args %}checked="checked"{% endif %}>
+				<label class="form-check-label" for="search_in_description">Description</label>
+			</div>
+			<div class="form-check">
+				<input type="checkbox" id="search_in_comment" class="form-check-input" name="search_in_comment" {% if 'search_in_comment' in args %}checked="checked"{% endif %}>
+				<label class="form-check-label" for="search_in_comment">Comment</label>
+			</div>
+		</div>
+		<div  class="col-9">
+			<div class="form-group row">
+				<div class="col-4">
+					<legend>Matching rule:</legend>
+					<div class="form-check">
+						<input type="radio" id="tags_lazy" name="tags_matching" class="form-check-input" value="lazy" {% if ('tags_matching' in args and args['tags_matching'] == 'lazy') or ('tags_matching' not in args) %}checked="checked"{% endif %}>
+						<label class="form-check-label" for="tags_lazy">Lazy (at least one term matches)</label>
+					</div>
+					<div class="form-check">
+						<input type="radio" id="tags_strict" name="tags_matching" class="form-check-input" value="strict" {% if 'tags_matching' in args and args['tags_matching'] == 'strict' %}checked="checked"{% endif %}>
+						<label class="form-check-label" for="tags_strict">Strict (all terms match)</label>
+					</div>
+				</div>
+				<div class="col-4">
+					<legend>View mode:</legend>
+					<div class="form-check">
+						<input type="radio" id="view_mode_list" name="view_mode" value="list" {% if ('view_mode' in args and args['view_mode'] == 'list' ) or ('view_mode' not in args) %}checked="checked"{% endif %}>
+						<label  class="form-check-label" for="view_mode_list">List</label>
+					</div>
+					<div class="form-check">
+						<input type="radio" id="view_mode_tiles" name="view_mode" value="tiles" {% if 'view_mode' in args and args['view_mode'] == 'tiles' %}checked="checked"{% endif %}>
+						<label  class="form-check-label" for="view_mode_tiles">Tiles</label>
+					</div>
+					<div class="form-check">
+						<input type="radio" id="view_mode_gallery" name="view_mode" value="gallery" {% if 'view_mode' in args and args['view_mode'] == 'gallery' %}checked="checked"{% endif %}>
+						<label  class="form-check-label" for="view_mode_gallery">Gallery</label>
+					</div>
+				</div>
+				<div class="col-4">
+					<legend>Ownership:</legend>
+					<div class="form-check">
+						<input type="checkbox" id="ownership_public" class="form-check-input" name="ownership_public" {% if ('ownership_public' in args) or ('ownership_public' not in args and 'ownership_private' not in args) %}checked="checked"{% endif %}>
+						<label class="form-check-label" for="ownership_public">Public</label>
+					</div>
+					<div class="form-check">
+						<input type="checkbox" id="ownership_private" class="form-check-input" name="ownership_private" {% if 'ownership_private' in args %}checked="checked"{% endif %}>
+						<label class="form-check-label" for="ownership_private">Mine</label>
+					</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<legend class="col-1">Year:</legend>
+				<div class="col-3">
+					<select class="custom-select" id="select_year" name="year">
+						<option value="any" {% if 'year' in args and args['year'] == 'any' %}selected{% endif %}>Any</option>
+					</select>
+					<script type="text/javascript">
+						now = new Date();
+						currentYear = now.getFullYear();
+						choice = "{% if 'year' in args %}{{ args['year'] }}{% else %}any{% endif %}"
+						select_year = document.getElementById("select_year");
+						for (year=currentYear; year > currentYear - 20; year--) {
+							if (choice == String(year)) {
+								select_year.appendChild(new Option(year, year, false, true))
+							} else {
+								select_year.appendChild(new Option(year, year, false, false))
+							}
+						}
+					</script>
+				</div>
+				<legend class="col-2">Location:</legend>
+				<div class="col-6">
+					<select class="custom-select" id="select_location" name="location">
+						<option value="any">Any</option>
+						{% for location in locations %}
+						<option value="{{ location['id'] }}" {% if 'location' in args and args['location'] == location['id'] | string %}selected{% endif %}>
+							{{ location['city'] | title }}, {{ location['country'] | title }}
+						</option>
+						{% endfor %}
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>

@@ -1,0 +1,51 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+
+{% from "_form.html" import render_field %}
+<br>
+{% if 'path' in form.__dict__._fields.keys() %}
+<div class="card">
+	<div class="card-header">Some notes to keep in mind</div>
+	<div class="card-body">
+		<p class="card-text">
+			<ul>
+				<li>Changing ownership is supported.</li>
+				<li>If the file path is changed the attempt to move the file will be performed.</li>
+				<li>If Title, Description, Tags, Comment, Location or Coords value is changed, then, besides database, the updated metadata will be written inside the file.</li>
+				<li>Changing duration value is not allowed - it is automatically detected by FFMPEG for videos and forcibly set to 0 for photos.</li>
+				<li>For simplicity, files are categorized into videos and photos based on a duration value instead of analyzing diverse file extensions.</li>
+				<li>It is advized to keep Created value which holds the creation date of the original file - it will be saved in the database but not written inside the file.</li>
+			</ul>
+		</p>
+	</div>
+</div>
+{% endif %}
+
+<br>
+
+<div class="alert alert-info" role="alert">Please fill in the form</div>
+
+<form method="POST" class="form-horizontal">
+{% for field in form.__dict__._fields.keys() %}
+	{{ render_field(form[field]) }}
+	{% if field == "path" %}
+	<center>
+		{% if form[field].data.lower().endswith('.jpg') or form[field].data.lower().endswith('jpeg') %}
+		<img src="/load_mediafile/{{ form[field].data.replace('\\','\\\\') }}" width="50%" />
+		{% elif form[field].data.lower().endswith('.mov') or form[field].data.lower().endswith('mp4') %}
+		<video preload="metadata" controls="controls" width="50%"><source src="/load_mediafile/{{ form[field].data }}"></video>
+		{% endif %}
+	</center>
+	{% endif %}
+{% endfor %}
+
+	<div class="form-group">
+		<div class="col-sm-offset-2 col-sm-10">
+			<a class="btn btn-info" href="javascript:history.back()" role="button">Cancel</a>
+			<button type="submit" class="btn btn-success">{{ submit_name }}</button>
+		</div>
+	</div>
+</form>
+
+{% endblock %}

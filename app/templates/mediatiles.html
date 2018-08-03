@@ -1,0 +1,51 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+
+{% include "_searchform.html" %}
+
+{% if pagination.total > 0 %}
+
+<form id="delete_item_form" name="delete_item_form" action="/{{ table }}/delete/" method="POST">
+	<input id="item" name="item" type="hidden" value="">
+</form>
+
+{% for row_batched in rows | batch(4) %}
+<div class="row">
+	{% for row in row_batched %}
+	<div class="col-sm-3">
+		<div class="card text-center" style="width: 16rem;">
+			<div class="card-header">
+				<small>{{ row['path'] }}</small>
+			</div>
+			{% if row['path'].lower().endswith('.jpg') or row['path'].lower().endswith('jpeg') %}
+			<img class="card-img-top" src="/load_mediafile/{{ row['path'] }}" title="{{ row['title'] }}" />
+			{% elif row['path'].lower().endswith('.mp4') %}
+			<video class="card-img-top" controls="controls" preload="metadata"><source src="/load_mediafile/{{ row['path'] }}"></video>
+			{% endif %}
+
+			<div class="card-body">
+				<h5 class="card-title">{{ row['year'] }}</h5>
+				<p class="card-text">
+					<a href="/{{ table }}/inspect/{{ row['id'] }}" ><button type="button" class="btn btn-info btn-sm" title="Inspect"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
+					<a href="/{{ table }}/view/{{ row['id'] }}" ><button type="button" class="btn btn-info btn-sm" title="View"><i class="fa fa-binoculars" aria-hidden="true"></i></button></a>
+					<a href="/{{ table }}/edit/{{ row['id'] }}" ><button type="button" class="btn btn-info btn-sm" title="Edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button></a>
+					<a href="javascript:document.getElementById('item').value={{ row['id'] }};document.getElementById('delete_item_form').submit();" ><button type="button" class="btn btn-info btn-sm" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button></a>
+				</p>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% endfor %}
+
+{% if pagination.total > pagination.per_page %}
+	{% from "_paginator.html" import render_pagination %}
+	{{ render_pagination(pagination, params) }}
+{% endif %}
+
+{% include "_worldmap.html" %}
+
+{% endif %}
+
+{% endblock %}

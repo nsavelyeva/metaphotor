@@ -1,29 +1,39 @@
 {% extends "_layout.html" %}
 
 {% block content %}
+<br>
+<div class="alert alert-info" role="alert">View Item #{{ item['id'] }}</div>
+<br>
 
-<div class="panel panel-info">
-	<div class="panel-heading">View Item #{{ item['id'] }}</div>
-	<div class="panel-body">
+<form id="delete_item_form" name="delete_item_form" action="./../delete/" method="POST">
+	<input id="item" name="item" type="hidden" value="">
+</form>
 
-		<form id="delete_item_form" name="delete_item_form" action="./../delete/" method="POST">
-			<input id="item" name="item" type="hidden" value="">
-		</form>
+<table class="table table-striped">
+	<tr><th width="150px">Property</th><th>Value</th></tr>
+	{% for field in item.keys() %}
+	<tr>
+		<th><i>{% if field == "login" and table == 'mediafiles' %}Ownership{% else %}{{ field | title }}{% endif %}</i></th>
+		<td>{% if field == "path" %}
+			<a href="javascript:show_mediafile_preview('{{ item['id'] }}', '{{ item['path'].replace('\\','\\\\') }}')">{{ item[field] }}</a><div id="preview-{{ item['id'] }}"></div>
+			{% elif field == "size" %}
+			{{ item[field] }} bytes = {{ size }}
+			{% else %}
+			{{ item[field] }}
+			{% endif %}
+		</td>
+	</tr>
+	{% endfor %}
+</table>
 
-		<table class="table table-striped">
-			<tr><th>Property</th><th>Value</th></tr>
-			{% for field in item.keys() %}
-			<tr><td>{{ field | title }}</td><td>{{ item[field] }}</td>
-			{% endfor %}
-		</table>
+<p>
+	<a class="btn btn-warning" role="button" href="./../edit/{{ item['id'] }}">Edit</a>
+	<a class="btn btn-danger" role="button" href="javascript:document.getElementById('item').value={{ item['id'] }};document.getElementById('delete_item_form').submit();">Delete</a>
+	<a class="btn btn-info" role="button" href="javascript:history.back()">Back</a>
+</p>
 
-		<p>
-			<a class="btn btn-default" href="./../edit/{{ item['id'] }}">Edit</a>
-			<a class="btn btn-default" href="javascript:document.getElementById('item').value={{ item['id'] }};document.getElementById('delete_item_form').submit();">Delete</a>
-			<a class="btn btn-default" href="javascript:history.back()">Back</a>
-		</p>
-
-	</div>
-</div>
+{% if table == 'mediafiles' %}
+	{% include "_worldmap.html" %}
+{% endif %}
 
 {% endblock %}

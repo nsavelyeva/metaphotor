@@ -2,7 +2,10 @@
 
 {% block content %}
 
+{% include "_searchform.html" %}
+
 {% if pagination.total > 0 %}
+
 <form id="delete_item_form" name="delete_item_form" action="/{{ table }}/delete/" method="POST">
 	<input id="item" name="item" type="hidden" value="">
 </form>
@@ -10,18 +13,38 @@
 <table class="table table-striped table-hover table-sm">
 	<thead>
 		<tr>
-			{% for field in fields %}
-			<th>{{ field | title }}</th>
-			{% endfor %}
+			<th>Id</th>
+			<th>Year</th>
+			<th>Preview</th>
+			<th>Path</th>
+			<th>Tags</th>
+			<th>Country</th>
 			<th class="text-right">Operations</th>
 		</tr>
 	</thead>
 	{% for row in rows %}
 	<tr>
-		{% for field in fields %}
-		<td>{{ row[field] }}</td>
-		{% endfor %}
+		<td>{{ row['id'] }}</td>
+		<td>{{ row['year'] }}</td>
+		<td>
+			{% if row['path'].lower().endswith('.jpg') or row['path'].lower().endswith('jpeg') %}
+			<img src="/load_mediafile/{{ row['path'] }}" width="50px" />
+			{% elif row['path'].lower().endswith('.mp4') %}
+			<video preload="metadata" width="80px"><source src="/load_mediafile/{{ row['path'] }}"></video>
+			{% endif %}
+			<br>{{ row['title'] }}
+		</td>
+		<td>
+			<a href="javascript:show_mediafile_preview('{{ row['id'] }}', '{{ row['path'].replace('\\','\\\\') }}')">{{ row['path'] }}</a>
+			<br>{{ row['title'] }}
+			<div id="preview-{{ row['id'] }}"></div>
+		</td>
+		<td>{{ row['tags'] }}</td>
+		<td>
+			<img src="{{ url_for('static', filename='flags/blank.gif') }}" class="flag flag-{{ row['code'].lower() }}" title="{{ row['country'] | title }}"  alt="{{ row['country'] | title }}" />
+		</td>
 		<td class="text-right">
+			<a href="/{{ table }}/inspect/{{ row['id'] }}" ><button type="button" class="btn btn-info btn-sm" title="Inspect"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 			<a href="/{{ table }}/view/{{ row['id'] }}" ><button type="button" class="btn btn-info btn-sm" title="View"><i class="fa fa-binoculars" aria-hidden="true"></i></button></a>
 			<a href="/{{ table }}/edit/{{ row['id'] }}" ><button type="button" class="btn btn-info btn-sm" title="Edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button></a>
 			<a href="javascript:document.getElementById('item').value={{ row['id'] }};document.getElementById('delete_item_form').submit();" ><button type="button" class="btn btn-info btn-sm" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button></a>
@@ -30,9 +53,12 @@
 	{% endfor %}
 	<tfoot>
 		<tr>
-			{% for field in fields %}
-			<th>{{ field | title }}</th>
-			{% endfor %}
+			<th>Id</th>
+			<th>Year</th>
+			<th>Preview</th>
+			<th>Path</th>
+			<th>Tags</th>
+			<th>Country</th>
 			<th class="text-right">Operations</th>
 		</tr>
 	</tfoot>
@@ -43,13 +69,8 @@
 	{{ render_pagination(pagination, params) }}
 {% endif %}
 
-{% else %}
-<div class="panel panel-info">
-	<div class="panel-heading">If no items found...</div>
-		<div class="panel-body">
-			<p>Maybe, it is the right time to add them?</p>
-		</div>
-	</div>
+{% include "_worldmap.html" %}
+
 {% endif %}
 
 {% endblock %}

@@ -1,0 +1,52 @@
+<div id="worldmap" style="height: 500px; min-width: 310px; max-width: 800px; margin: 0 auto"></div>
+
+<!-- Uncomment below if you want to use highmaps from CDN
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.12/proj4-src.js"></script>
+<script src="https://code.highcharts.com/maps/highmaps.js"></script>
+<script src="https://code.highcharts.com/mapdata/custom/world.js"></script>
+-->
+
+<script src="{{ url_for('static', filename='js/highmaps/proj4-src.js') }}"></script>
+<script src="{{ url_for('static', filename='js/highmaps/highmaps.js') }}"></script>
+<script src="{{ url_for('static', filename='js/highmaps/world.js') }}"></script>
+
+<script>
+	var points = JSON.parse('{{ points | safe }}')
+	var data = JSON.parse('{{ data | safe }}')
+
+	Highcharts.mapChart('worldmap', {  // 'worldmap' is the id of the div container
+		title: {
+			text: 'Photos/Videos count by country {% if table == 'mediafiles' %}(among search results){% endif %}'
+		},
+		subtitle: {
+			text: 'Use Zoom In/Out'
+		},
+		mapNavigation: {
+			enabled: true,
+			buttonOptions: {
+				verticalAlign: 'bottom'
+			}
+		},
+		colorAxis: {
+			min: 1,
+			max: 1000,
+		},
+		series: [{
+			data: data,
+			mapData: Highcharts.maps['custom/world'],
+			joinBy: ['iso-a2', 'code'],
+			name: 'Snapshots count',
+			states: {
+				hover: {
+					color: '#a4edba',
+					borderColor: 'gray'
+				}
+			},
+			tooltip: {
+				valueSuffix: ' snapshot(s)'
+			}
+		},
+		points,
+		]
+	});
+</script>
