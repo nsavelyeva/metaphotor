@@ -2,30 +2,32 @@ MetaPhotor is a web-application to serve as a small media-centre for personal an
 
 Reason:
   * I wanted to keep family photos & videos on a home server and search through them from a browser - by tags, locations, etc.
-  * Moreover, I wanted my metadata changes to metadata to be stored inside the media files in order to let them survive after copying/moving files.
+  * Moreover, I wanted my changes to metadata to be stored inside the media files in order to let them survive after copying/moving files.
   * I got inspired by EXIF and FFMPEG, Highcharts + Highmaps, and Mapping APIs.
 
 Tools:
-  * Back-end: Flask microframework on the top of Python 3, modules geopy, PIL & piexif, multiprocessing.dummy for threading, argparse & logging.
-  * Database: SQLite (which is inbuilt in Python) + SQLAlchemy
-  * Front-end: Bootstrap + jQuery + Font Awesome + higcharts & highmaps. All from CDN.
+  * Back-end: Flask microframework on the top of Python 3, modules geopy, PIL & piexif, ffmpy (requires FFMPEG executables), multiprocessing.dummy for threading, argparse & logging.
+  * Database: SQLite (which is inbuilt in Python) + SQLAlchemy.
+  * Front-end: Bootstrap + jQuery + Font Awesome + higcharts & highmaps. All js/css are downloaded but you can adjust links to use CDN.
 
 Features:
   * Discover photo and video files on the local storage and display the ongoing scan progress.
-  * Sophisticated search for media files based on their metadata - with tags autocompletion support.
+	Note: video will be forcibly converted to MP4.
+  * Sophisticated search for media files in the database based on their metadata - by tags/year/location/... .
   * Read/Modify metadata inside photo and video files.
+  * Compare metadata stored in the database and metadata stored inside media files.
   * Statistics in the form of pie charts and histograms.
-  * Geo positioning of a photo/video on the map.
+  * Geo positioning of a photo/video on the world map including indication of snapshots count per country.
   * Ownership support for media files:
-      - scanned files are considered as common for all users including anonymous;
-      - uploaded files are considered as owned by an (authenticated) uploader.
+      - scanned files are considered as public;
+      - ownership of any file can be changed any time by any authorized user.
   * Listing media files:
       - pagination;
-      - carousel, thumbnails and table views;
-      - pop-10: popular (most visited) media files;
-      - new-10: last created media files;
-      - fresh-10: last updated media files;
-      - lov-10: favourite media files (owned & popular).
+      - gallery, tiles and list views;
+      - Top-10 lists: most visited, last created/updated files, etc.
+      - Mix-100 list: videos and photos selected randlomly.
   * Besides MediaFiles, support of CRUD-operations for Locations, Users, Tags.
-  * Web interface to manage application settings.
+  * Simplified adding location by city, i.e. coordinates, country and country code are automatically detected by city name.
+  * Web interface to view/modify application settings.
   * Support options to launch MetaPhotor from command line and application logging.
+  * User authentication to support files ownership and restrictions to view non-public pages. Note: you can start using the app as user admin/admin.

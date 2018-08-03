@@ -2,88 +2,128 @@
 
 {% block content %}
 
-<div class="panel panel-info">
-    <div class="panel-heading">Meet MetaPhotor</div>
-    <div class="panel-body">
-        <p>MetaPhotor is a web-application to serve as a small media-centre for personal and family photos and videos.</p>
-    </div>
+<br>
+
+<div class="card">
+	<h5 class="card-header">Meet MetaPhotor</h5>
+	<div class="card-body">
+		<h5 class="card-title">Welcome!</h5>
+		<p class="card-text">
+			MetaPhotor is a web-application to serve as a small media-centre for personal and family photos and videos.
+			<br>Is this the first time the app is launched? Then you need to configure <a href="/settings">settings</a>, default user is <i>admin/admin</i>.
+			<br>Once the app is configured, do not forget to change password for admin user!
+		</p>
+	</div>
 </div>
 
-<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-  <div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="headingZero">
-      <h4 class="panel-title">
-        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseZero" aria-expanded="true" aria-controls="collapseZero">
-          Reason
-        </a>
-      </h4>
-    </div>
-    <div id="collapseZero" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingZero">
-      <div class="panel-body">
-          <ul>
-              <li>I wanted to keep family photos & videos on a home server and search through them from a browser - by tags, locations, etc.</li>
-              <li>Moreover, I wanted my metadata changes to metadata to be stored inside the media files in order to let them survive after copying/moving files.</li>
-              <li>I got inspired by EXIF and FFMPEG, Highcharts + Highmaps, and Mapping APIs.</li>
-          </ul>
-      </div>
-    </div>
-  </div>
-  <div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="headingOne">
-      <h4 class="panel-title">
-        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-          Tools
-        </a>
-      </h4>
-    </div>
-    <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
-      <div class="panel-body">
-          <ul>
-              <li>Back-end: Flask microframework on the top of Python 3, modules geopy, PIL & piexif, multiprocessing.dummy for threading, argparse & logging.</li>
-              <li>Database: SQLite (which is inbuilt in Python) + SQLAlchemy</li>
-              <li>Front-end: Bootstrap + jQuery + Font Awesome + higcharts & highmaps. All from CDN.</li>
-          </ul>
-      </div>
-    </div>
-  </div>
-  <div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="headingTwo">
-      <h4 class="panel-title">
-        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-          Features
-        </a>
-      </h4>
-    </div>
-    <div id="collapseTwo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
-      <div class="panel-body">
-          <ul>
-              <li>Discover photo and video files on the local storage and display the ongoing scan progress.</li>
-              <li>Sophisticated search for media files based on their metadata - with tags autocompletion support.</li>
-              <li>Read/Modify metadata inside photo and video files.</li>
-              <li>Statistics in the form of pie charts and histograms.</li>
-              <li>Geo positioning of a photo/video on the map.</li>
-              <li>Ownership support for media files:
-                  <ul>
-                      <li>scanned files are considered as common for all users including anonymous;</li>
-                      <li>uploaded files are considered as owned by an (authenticated) uploader.</li>
-                  </ul>
-              </li>
-              <li>Listing media files:
-                  <ul>
-                      <li>pagination;</li>
-                      <li>carousel, thumbnails and table views;</li>
-                      <li>pop-10: popular (most visited) media files;</li>
-                      <li>new-10: last created media files;</li>
-                      <li>fresh-10: last updated media files;</li>
-                      <li>lov-10: favourite media files (owned & popular).</li>
-                  </ul>
-              </li>
-              <li>Besides MediaFiles, support of CRUD-operations for Locations, Users, Tags.</li>
-              <li>Web interface to manage application settings.</li>
-              <li>Support options to launch MetaPhotor from command line and application logging.</li>
-          </ul>
-      </div>
-    </div>
-  </div>
+<br>
+
+<nav>
+	<div class="nav nav-tabs" id="nav-tab" role="tablist">
+		<a class="nav-item nav-link active" id="nav-reason-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Reason</a>
+		<a class="nav-item nav-link" id="nav-tools-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Tools</a>
+		<a class="nav-item nav-link" id="nav-features-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Features</a>
+	</div>
+</nav>
+
+<div class="tab-content" id="nav-tabContent">
+	<div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+		<div class="card" style="border-top:1px solid white">
+			<div class="card-body">
+				<ul>
+					<li>I wanted to keep family photos & videos on a home server and search through them from a browser - by tags, locations, etc.</li>
+					<li>Moreover, I wanted my changes to metadata to be stored inside the media files in order to let them survive after copying/moving files.</li>
+					<li>I got inspired by EXIF and FFMPEG, Highcharts + Highmaps, and Mapping APIs.</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+		<div class="card" style="border-top:1px solid white">
+			<div class="card-body">
+				<ul>
+					<li>Back-end: Flask microframework on the top of Python 3, modules geopy, PIL & piexif, ffmpy (requires FFMPEG executables), multiprocessing.dummy for threading, argparse & logging.</li>
+					<li>Database: SQLite (which is inbuilt in Python) + SQLAlchemy.</li>
+					<li>Front-end: Bootstrap + jQuery + Font Awesome + higcharts & highmaps. All js/css are downloaded but you can adjust links to use CDN.</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+		<div class="card" style="border-top:1px solid white">
+			<div class="card-body">
+				<ul>
+					<li>Discover photo and video files on the local storage and display the ongoing scan progress.
+						Note: video will be forcibly converted to MP4.</li>
+					<li>Sophisticated search for media files in the database based on their metadata - by tags/year/location/... .</li>
+					<li>Read/Modify metadata inside photo and video files.</li>
+					<li>Compare metadata stored in the database and metadata stored inside media files.</li>
+					<li>Statistics in the form of pie charts and histograms.</li>
+					<li>Geo positioning of a photo/video on the world map including indication of snapshots count per country.</li>
+					<li>Ownership support for media files:
+						<ul>
+							<li>scanned files are considered as public;</li>
+							<li>ownership of any file can be changed any time by any authorized user.</li>
+						</ul>
+					</li>
+					<li>Listing media files:
+						<ul>
+							<li>pagination;</li>
+							<li>gallery, tiles and list views;</li>
+							<li>Top-10 lists: most visited, last created/updated files, etc.</li>
+							<li>Mix-100 list: videos and photos selected randlomly.</li>
+						</ul>
+					</li>
+					<li>Besides MediaFiles, support of CRUD-operations for Locations, Users, Tags.</li>
+					<li>Simplified adding location by city, i.e. coordinates, country and country code are automatically detected by city name.</li>
+					<li>Web interface to view/modify application settings.</li>
+					<li>Support options to launch MetaPhotor from command line and application logging.</li>
+					<li>User authentication to support files ownership and restrictions to view non-public pages. Note: you can start using the app as user admin/admin.</li>
+				</ul>
+			</div>
+		</div>
+	</div>
 </div>
+
+<br>
+
+<div class="card">
+	<div class="card-header">Warning!</div>
+	<div class="card-body">
+		<p>I almost did not test my little buggy app, so:</p>
+		<ul>
+			<li>do not get surprised when you see it crashed with a scary <code>Traceback</code>;</li>
+			<li>keep in mind that all video files will be automatically converted to MP4 by FFMPEG in order to:
+				<ul>
+					<li>support all metadata fields offered by MetaPhotor,</li>
+					<li>be displayed in modern browsers correctly - make a backup before scanning for files!</li>
+				</ul>
+			</li>
+			<li>I take no responsibility if your lovely photos and videos leave to the valley of death... Always keep a backup!</li>
+		</ul>
+		<p>In the case of Emergency, please stay calm, go to <a href="https://github.com/nsavelyeva/metaphotor" target="_blank">github</a> and open an issue,
+			or contact me at <a href="https://www.linkedin.com/in/natallia-savelyeva-15407a12a/" target="_blank">LinkedIn</a>.
+		</p>
+	</div>
+</div>
+
+<script>
+	$('#nav-reason-tab a').on('click', function (e) {
+		e.preventDefault()
+		$(this).tab('show')
+	})
+
+	$('#nav-tools-tab a').on('click', function (e) {
+		e.preventDefault()
+		$(this).tab('show')
+	})
+
+	$('#nav-features-tab a').on('click', function (e) {
+		e.preventDefault()
+		$(this).tab('show')
+	})
+</script>
+
 {% endblock %}
