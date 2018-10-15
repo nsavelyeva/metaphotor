@@ -94,10 +94,10 @@ function show_mediafile_preview(mediafile_id, mediafile_path) {
 	content = $("#preview-" + mediafile_id).html()
 	if (content == "") {
 		if (mediafile_path.toLowerCase().endsWith(".jpg") || mediafile_path.toLowerCase().endsWith(".jpeg")) {
-			content = '<img src="/load_mediafile/' + mediafile_path + '" style="max-width: 100%" />'
+			content = '<img src="/load_mediafile' + mediafile_path + '" style="max-width: 100%" />'
 		} else {
 			content =	'<video controls="controls" preload="metadata" style="max-width: 100%">' +
-						'<source src="/load_mediafile/' + mediafile_path + '">' +
+						'<source src="/load_mediafile' + mediafile_path + '">' +
 						'</video>'
 		}
 	} else {

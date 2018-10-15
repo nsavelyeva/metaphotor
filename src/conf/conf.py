@@ -6,6 +6,8 @@ import json
 
 CONFIG_FOLDER = os.path.dirname(os.path.abspath(__file__))
 CUSTOM_SETTINGS_FILE = os.path.join(CONFIG_FOLDER, 'custom.json')
+
+
 with open(CUSTOM_SETTINGS_FILE, 'r') as _f:
     CUSTOM_SETTINGS = json.loads(_f.read().strip())
 
@@ -27,8 +29,11 @@ class BaseConf:
     APP_FOLDER = CONFIG_FOLDER[:-5]  # strip '/conf' (Linux) or '\conf' (Windows)
     CONFIG_FOLDER = CONFIG_FOLDER
     SETTINGS_FILE = CUSTOM_SETTINGS_FILE
-    DATABASE = os.path.join(CONFIG_FOLDER, '..', 'metaphotor.db')
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % DATABASE
+    DATABASE = os.environ.get('POSTGRES_DB', 'metaphotor')
+    SQLALCHEMY_DATABASE_URI = 'postgresql://%s:%s@postgresql:5432/%s' % (\
+                              os.environ.get('POSTGRES_USER', 'postgres'),
+                              os.environ.get('POSTGRES_PASSWORD', 'password'),
+                              DATABASE)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOAD_FOLDER = os.path.normpath('app/uploads')  # will be created if does not exist
     DOWNLOAD_FOLDER = 'downloads'  # will be created if does not exist

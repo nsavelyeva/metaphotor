@@ -4,7 +4,13 @@ from geopy.exc import GeocoderQueryError
 
 
 def get_coords(city):
-    """Detect geo coordinates (latitude, longitude) for the given city."""
+    """
+    Detect geo coordinates (latitude, longitude) for the given city.
+
+    :param city: a city name, e.g. minsk.
+
+    :return: a tuple of float numbers (latitude, longitude).
+    """
     location = latitude = longitude = None
     try:
         location = Nominatim().geocode(city, language='en')
@@ -16,7 +22,14 @@ def get_coords(city):
 
 
 def get_address(latitude, longitude):
-    """Detect country, city, and country code based on latitude and longitude."""
+    """
+    Detect country, city, and country code based on latitude and longitude.
+
+    :param latitude: a float number representing a latitude coordinate.
+    :param longitude: a float number representing a longitude coordinate.
+
+    :return: a 3-tuple of strings (city, country, code) or (None, None, None) if an error occurred.
+    """
     location = city = country = code = None
     try:
         location = Nominatim().reverse((latitude, longitude), language='en')
@@ -31,6 +44,7 @@ def get_address(latitude, longitude):
     return city, country, code
 
 
+# A collection of countries and their codes, the values represent population density.
 COUNTRIES = [
     {'code3': 'ABW', 'name': 'Aruba', 'value': 582.34, 'code': 'AW'},
     {'code3': 'AFG', 'name': 'Afghanistan', 'value': 53.08, 'code': 'AF'},

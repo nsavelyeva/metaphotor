@@ -114,16 +114,16 @@ def update_visits_accessed():
     return jsonify(error=error)
 
 
-@app.route('/load_mediafile/<path:file_name>')
-def download_file(file_name):
+@app.route('/load_mediafile/<path:abs_path>')
+def download_file(abs_path):
     """
     Send the contents of a file to the client -
     this is used to display photo or video as a static file on the web pages.
 
-    :param file_name: an absolute path to the file.
+    :param abs_path: an absolute path to the file.
     """
-    file_name = file_name.replace('/', os.sep)
-    return send_file(file_name)
+    abs_path = abs_path.replace('/', os.sep).replace('opt/metaphotor/app/', '')
+    return send_file(abs_path)
 
 
 @app.route('/home')
@@ -748,9 +748,9 @@ def settings_update():
 @login_required
 def settings_restore():
     """Route to the page to restore default values of customizable application settings."""
-    default_settings = {'MEDIA_FOLDER': 'd:\\path\\to\\folder\\with\\media_sources\\',
-                        'FFMPEG_PATH': 'd:\\path\\to\\ffmpeg.exe',
-                        'FFPROBE_PATH': 'd:\\path\\to\\ffprobe.exe',
+    default_settings = {'MEDIA_FOLDER': '/opt/metaphotor/app/media',
+                        'FFMPEG_PATH': '/usr/bin/ffmpeg',
+                        'FFPROBE_PATH': '/usr/bin/ffprobe',
                         'MIN_FILESIZE': 524288, 'MAX_FILESIZE': 1073741824, 'ITEMS_PER_PAGE': 100}
     if helpers.update_settings_file(default_settings, app.config['SETTINGS_FILE']):
         app.config.update(default_settings)

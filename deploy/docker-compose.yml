@@ -1,0 +1,65 @@
+version: "3"
+
+services:
+
+  web: # Flask + uWSGI + FFMPEG
+    restart: always
+    container_name: metaphotor_web
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    image: metaphotor:latest
+    command: uwsgi --ini /etc/uwsgi.ini
+    volumes:
+      - ./../src:/opt/metaphotor
+      - ${MEDIA_FOLDER_ABS_PATH:-/mnt/media}:/opt/metaphotor/app/media
+    depends_on: 
+      - postgresql
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-metaphotor}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_PORT_5432_TCP_ADDR=postgresql
+      - POSTGRES_PORT_5432_TCP_PORT=5432
+    networks: 
+      - internal
+      - external
+
+
+  nginx:
+    restart: always
+    container_name: metaphotor_nginx
+    image: nginx:latest
+    volumes:
+      - ./nginx/:/etc/nginx/
+      - ./../src:/tmp
+    ports:
+      - "${EXTERNAL_WEB_PORT:-80}:80"
+    depends_on:
+      - web
+    networks:
+      - external
+
+
+  postgresql:
+    restart: always
+    container_name: metaphotor_postgresql
+    image: postgres:latest
+    ports:
+      - "${EXTERNAL_POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ./volumes/postgresql_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-metaphotor}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_ROOT_PASSWORD=${POSTGRES_ROOT_PASSWORD:-password}
+    networks:
+      - internal
+
+  
+networks:
+  internal:
+    driver: bridge
+  external:
+    driver: bridge

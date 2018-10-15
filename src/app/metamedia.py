@@ -95,9 +95,10 @@ class Media(ABC):
         gps = 'coords=(%s,%s)\tcountry=%s\tcity=%s' % \
               (self.gps.get('latitude', ''), self.gps.get('longitude', ''),
                self.gps.get('country', '').title(), self.gps.get('city', '').title())
-        info = ('Photo: %s\n\tTitle: %s\n\tDescription: %s\n\tTags: %s\n\tComment: %s\n\t' +
-                'Created: %s\n\tYear: %s\n\tGPS: %s\n\tDuration: %s\n\tSize: %s') % \
-               (self.path, self.title, self.description, self.tags, self.comment,
+        info = ('%s: %s\n\tTitle: %s\n\tDescription: %s\n\tTags: %s\n\tComment: %s\n\t' +
+                'Created: %s\n\tYear: %s\n\tGPS: %s\n\tDuration: %s\n\tSize: %s bytes\n') % \
+               (self.__class__.__name__, self.path,
+                self.title, self.description, self.tags, self.comment,
                 self.created, self.year, gps, self.duration, self.size)
         return info
 
@@ -121,6 +122,7 @@ class Photo(Media):
     def read_metadata(self):
         """Obtain EXIF metadata of the Photo JPEG-file using piexif.load()."""
         metadata = None
+        self.media = self.load_media()
         if self.media and self.media.info and 'exif' in self.media.info:
             metadata = piexif.load(self.media.info['exif'])
         return metadata

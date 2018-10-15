@@ -5,13 +5,13 @@ import logging
 from collections import OrderedDict
 from multiprocessing.dummy import Pool as ThreadPool, Value, Lock
 from werkzeug.utils import secure_filename
-from .models import MediaFiles, get_time_str, to_dict
+from .models import MediaFiles, get_time_str
 from .metamedia import MultiMedia, get_file_ctime, format_timestamp
 from . import db_queries
 from .geo_tools import COUNTRIES
 
 
-class Data(object):
+class Data:
     """A class to be used as a form of a return value for supporting functions."""
     def __init__(self, values, errors):
         self.value = values     # could be any structure

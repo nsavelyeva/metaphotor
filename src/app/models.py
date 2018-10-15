@@ -49,17 +49,18 @@ def paginate(query, page, per_page):
 
 class MediaFiles(Base):
     __tablename__ = 'mediafiles'
+
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     user_relation = relationship('Users', backref=backref('mediafiles', lazy='dynamic'))
-    path = Column(Text(1024), unique=True)
+    path = Column(Text(), unique=True)
     duration = Column(Integer)
     size = Column(Integer)
     title = Column(String(265))
-    description = Column(Text(1024))
-    comment = Column(Text(1024))
+    description = Column(Text())
+    comment = Column(Text())
     tags = Column(String(256))
-    coords = Column(String(27))
+    coords = Column(String(50))
     location_id = Column(Integer, ForeignKey('locations.id'))
     location_relation = relationship('Locations', backref=backref('mediafiles', lazy='dynamic'))
     year = Column(Integer)
@@ -71,18 +72,25 @@ class MediaFiles(Base):
 
     def __init__(self, user_relation, path, duration, title, description, comment, tags,
                  coords, location_relation, year, created, size):
+        """
+        An initializer for the database entry object.
+        Note: Adding .replace('\x00', '') to string literals to avoid PostgreSQL error:
+        "A string literal cannot contain NUL (0x00) characters." - please refer to:
+        https://groups.google.com/forum/#!topic/django-developers/D1gvXYCezEc
+        https://www.postgresql.org/message-id/200712170734.lBH7YdG9034458%40wwwmaster.postgresql.org
+        """
         self.user_id = user_relation
-        self.path = path
+        self.path = path.replace('\x00', '')
         self.duration = duration
         self.size = size
-        self.title = title
-        self.description = description
-        self.comment = comment
-        self.tags = tags
-        self.coords = coords
+        self.title = title.replace('\x00', '')
+        self.description = description.replace('\x00', '')
+        self.comment = comment.replace('\x00', '')
+        self.tags = tags.replace('\x00', '')
+        self.coords = coords.replace('\x00', '')
         self.location_id = location_relation
         self.year = year
-        self.created = created
+        self.created = created.replace('\x00', '')
         self.imported = get_time_str()
         self.updated = ''
         self.accessed = ''
@@ -115,6 +123,7 @@ class MediaFiles(Base):
 
 class Tags(Base):
     __tablename__ = 'tags'
+
     id = Column(Integer, primary_key=True)
     tag = Column(String(20), unique=True)
 
@@ -130,9 +139,10 @@ class Tags(Base):
 
 class Users(Base):
     __tablename__ = 'users'
+
     id = Column(Integer, primary_key=True)
     login = Column(String(20), unique=True)
-    password = Column(String(20))
+    password = Column(String(100))
 
     def __init__(self, login, password):
         self.login = login
@@ -147,6 +157,7 @@ class Users(Base):
 
 class Locations(Base):
     __tablename__ = 'locations'
+
     id = Column(Integer, primary_key=True)
     latitude = Column(Float, unique=True)
     longitude = Column(Float, unique=True)
@@ -172,14 +183,6 @@ class Locations(Base):
 \tCountry: %s
 \tCountry code: %s''' % (self.id, self.latitude, self.longitude, self.city, self.country, self.code)
         return info
-
-
-@event.listens_for(Engine, 'connect')
-def set_sqlite_pragma(dbapi_connection, connection_record):
-    """Support multiple requests causing database lock (see https://www.sqlite.org/faq.html#q5)."""
-    cursor = dbapi_connection.cursor()
-    cursor.execute('PRAGMA busy_timeout=10000')
-    cursor.close()
 
 
 @app.before_first_request

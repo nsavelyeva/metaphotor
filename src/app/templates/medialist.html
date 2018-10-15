@@ -28,9 +28,9 @@
 		<td>{{ row['year'] }}</td>
 		<td>
 			{% if row['path'].lower().endswith('.jpg') or row['path'].lower().endswith('jpeg') %}
-			<img src="/load_mediafile/{{ row['path'] }}" width="50px" />
+			<img src="/load_mediafile{{ row['path'] }}" width="50px" />
 			{% elif row['path'].lower().endswith('.mp4') %}
-			<video preload="metadata" width="80px"><source src="/load_mediafile/{{ row['path'] }}"></video>
+			<video preload="metadata" width="80px"><source src="/load_mediafile{{ row['path'] }}"></video>
 			{% endif %}
 			<br>{{ row['title'] }}
 		</td>

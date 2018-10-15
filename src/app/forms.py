@@ -1,7 +1,8 @@
 import os
 from datetime import datetime
 from wtforms import Form, validators, ValidationError, \
-                    StringField, SelectField, TextAreaField, FloatField, DecimalField
+                    StringField, PasswordField, TextAreaField, \
+                    SelectField, FloatField, DecimalField
 from flask_wtf.file import FileField
 from app import app
 
@@ -57,13 +58,13 @@ class TagsForm(Form):
 
 class UsersForm(Form):
     login = StringField('Username (login)', [validators.DataRequired()], render_kw={'size': 30})
-    password = StringField('Password', [validators.DataRequired()], render_kw={'size': 30})
+    password = PasswordField('Password', [validators.DataRequired()], render_kw={'size': 30})
 
 
 class LoginForm(Form):
     login = StringField('Login', [validators.DataRequired()], default='',
                         render_kw={'size': 30, 'width': '100px'})
-    password = StringField('Password', [validators.DataRequired()], default='',
+    password = PasswordField('Password', [validators.DataRequired()], default='',
                            render_kw={'size': 30, 'width': '100px'})
 
 

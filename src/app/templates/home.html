@@ -10,8 +10,9 @@
 		<h5 class="card-title">Welcome!</h5>
 		<p class="card-text">
 			MetaPhotor is a web-application to serve as a small media-centre for personal and family photos and videos.
-			<br>Is this the first time the app is launched? Then you need to configure <a href="/settings">settings</a>, default user is <i>admin/admin</i>.
-			<br>Once the app is configured, do not forget to change password for admin user!
+			<br>Is this the first time the app is launched? Then you may want to configure <a href="/settings">settings</a>, default user is <i>admin/admin</i>.
+			<br>However, for dockerized deployment default settings work fine, just do not forget to change password for the admin user!
+			<br>P.S. While tested in Chrome browser, no issues with displaying videos and photos were discovered.
 		</p>
 	</div>
 </div>
@@ -20,14 +21,15 @@
 
 <nav>
 	<div class="nav nav-tabs" id="nav-tab" role="tablist">
-		<a class="nav-item nav-link active" id="nav-reason-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Reason</a>
-		<a class="nav-item nav-link" id="nav-tools-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Tools</a>
-		<a class="nav-item nav-link" id="nav-features-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Features</a>
+		<a class="nav-item nav-link active" id="nav-reason-tab" data-toggle="tab" href="#nav-reason" role="tab" aria-controls="nav-reason" aria-selected="true">Reason</a>
+		<a class="nav-item nav-link" id="nav-tools-tab" data-toggle="tab" href="#nav-tools" role="tab" aria-controls="nav-tools" aria-selected="false">Tools</a>
+		<a class="nav-item nav-link" id="nav-features-tab" data-toggle="tab" href="#nav-features" role="tab" aria-controls="nav-features" aria-selected="false">Features</a>
+		<a class="nav-item nav-link" id="nav-howto-tab" data-toggle="tab" href="#nav-howto" role="tab" aria-controls="nav-howto" aria-selected="false">Howto</a>
 	</div>
 </nav>
 
 <div class="tab-content" id="nav-tabContent">
-	<div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+	<div class="tab-pane fade show active" id="nav-reason" role="tabpanel" aria-labelledby="nav-reason-tab">
 		<div class="card" style="border-top:1px solid white">
 			<div class="card-body">
 				<ul>
@@ -39,19 +41,20 @@
 		</div>
 	</div>
 
-	<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+	<div class="tab-pane fade" id="nav-tools" role="tabpanel" aria-labelledby="nav-tools-tab">
 		<div class="card" style="border-top:1px solid white">
 			<div class="card-body">
 				<ul>
-					<li>Back-end: Flask microframework on the top of Python 3, modules geopy, PIL & piexif, ffmpy (requires FFMPEG executables), multiprocessing.dummy for threading, argparse & logging.</li>
-					<li>Database: SQLite (which is inbuilt in Python) + SQLAlchemy.</li>
-					<li>Front-end: Bootstrap + jQuery + Font Awesome + higcharts & highmaps. All js/css are downloaded but you can adjust links to use CDN.</li>
+					<li><b>Back-end</b>: Flask microframework on the top of Python 3, modules geopy, PIL & piexif, ffmpy (requires FFMPEG executables), multiprocessing.dummy for threading, argparse & logging.</li>
+					<li><b>Database</b>: PostgreSQL + SQLAlchemy.</li>
+					<li><b>Front-end</b>: Bootstrap + jQuery + Font Awesome + higcharts & highmaps. All js/css are downloaded but you can adjust links to use CDN.</li>
+					<li><b>Deployment</b>: docker-compose.yml to run the whole environment in three separate containers: Nginx, PostgreSQL and Flask+uWSGI+FFMPEG.</li>
 				</ul>
 			</div>
 		</div>
 	</div>
 
-	<div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+	<div class="tab-pane fade" id="nav-features" role="tabpanel" aria-labelledby="nav-features-tab">
 		<div class="card" style="border-top:1px solid white">
 			<div class="card-body">
 				<ul>
@@ -81,10 +84,50 @@
 					<li>Web interface to view/modify application settings.</li>
 					<li>Support options to launch MetaPhotor from command line and application logging.</li>
 					<li>User authentication to support files ownership and restrictions to view non-public pages. Note: you can start using the app as user admin/admin.</li>
+					<li>Dockerized deployment with docker-compose YAML file.</li>
 				</ul>
 			</div>
 		</div>
 	</div>
+
+	<div class="tab-pane fade" id="nav-howto" role="tabpanel" aria-labelledby="nav-howto-tab">
+		<div class="card" style="border-top:1px solid white">
+			<div class="card-body">
+				<ul>
+					<li>Deploy the app:
+						<ul>
+							<li>Clone metaphotor app - e.g. run the command <code>git clone https://github.com/nsavelyeva/metaphotor</code> in a terminal window.</li>
+							<li>Navigate to the folder <i>metaphotor/deploy</i>.</li>
+							<li>Adjust values for environment variables in <i>.env</i> file.</li>
+							<li>Run the command <code>docker-compose up -d --build</code> in a terminal window.</li>
+						</ul>
+					</li>
+					<li>Import video and photo files:
+						<ul>
+							<li><a href="/login">Login</a> as <i>admin/admin</i> (note, default admin password can be changed <a href="/users/edit/1">here</a>).</li>
+							<li>At <a href="/settings">settings</a> make sure the absolute path to the media folder is correct
+								(by default, it should be <i>/opt/metaphotor/app/media</i> - i.e. the path inside metaphotor_web container,
+								where the path from the host machine [as set in .env file: MEDIA_FOLDER_ABS_PATH=/mnt/media] is mapped to).
+								and click on <b>Scan Media Files</b> button.
+							</li>
+						</ul>
+					</li>
+					<li>Stop all containers:
+						<ul>
+							<li>Run the command <code>docker-compose down -v</code> in a terminal window (note, this is safe to keep the data since PostgreSQL stores it in the folder <i>metaphotor/deploy/volumes/postgresql_data</i>).</li>
+						</ul>
+					</li>
+					<li>Remove data about media files from the database, if you wish to start over with initial deployment:
+						<ul>
+							<li>Stop all containers as described above.</li>
+							<li>Remove the folder <i>metaphotor/deploy/volumes/postgresql_data</i>.</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
 </div>
 
 <br>
@@ -121,6 +164,11 @@
 	})
 
 	$('#nav-features-tab a').on('click', function (e) {
+		e.preventDefault()
+		$(this).tab('show')
+	})
+
+	$('#nav-howto-tab a').on('click', function (e) {
 		e.preventDefault()
 		$(this).tab('show')
 	})
