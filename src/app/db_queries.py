@@ -63,15 +63,16 @@ def stats_data_by_year():
 
 def stats_data_by_location():
     """Collect entries from database and organize them into a structure acceptable by highcharts."""
-    snapshots = MediaFiles.query.outerjoin(Locations, MediaFiles.location_id == Locations.id)
-    by_city = snapshots.add_columns(Locations.city, func.count(MediaFiles.id)) \
-                       .group_by(Locations.city) \
-                       .all()
-    by_country = snapshots.add_columns(Locations.country, func.count(MediaFiles.id)) \
-                       .group_by(Locations.country) \
-                       .all()
-    data_by_city = [{'name': item[1].title(), 'y': item[2]} for item in by_city]
-    data_by_country = [{'name': item[1].title(), 'y': item[2]} for item in by_country]
+    by_city = db_session.query(Locations.city, func.count(MediaFiles.id)) \
+                        .outerjoin(MediaFiles, MediaFiles.location_id == Locations.id) \
+                        .group_by(Locations.city) \
+                        .all()
+    by_country = db_session.query(Locations.country, func.count(MediaFiles.id)) \
+                           .outerjoin(MediaFiles, MediaFiles.location_id == Locations.id) \
+                           .group_by(Locations.country) \
+                           .all()
+    data_by_city = [{'name': item[0].title(), 'y': item[1]} for item in by_city]
+    data_by_country = [{'name': item[0].title(), 'y': item[1]} for item in by_country]
     return data_by_city, data_by_country
 
 
