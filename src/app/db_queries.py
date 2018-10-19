@@ -394,6 +394,8 @@ def remove_tag(tag_id):
 def remove_user(user_id):
     """Remove an entry from 'users' table."""
     user = Users.query.get(user_id)
+    if user_id in [0, 1]:
+        return 'Removal of default User #%s (%s) is forbidden.' % (user_id, user.login), 'warning'
     db_session.delete(user)
     db_session.commit()
     return 'User #%s (%s) has been deleted.' % (user_id, user.login), 'success'
@@ -401,9 +403,11 @@ def remove_user(user_id):
 
 def remove_location(location_id):
     """Remove an entry from 'locations' table (if there are no media files linked to it)."""
-    if location_id == 0:
-        return 'Removal of Location #0 is forbidden.', 'warning'
     location = Locations.query.get(location_id)
+    if location_id == 0:
+        msg = 'Removal of default Location #0 (city: "%s", country: "%s") is forbidden.' % \
+              (location.city.title(), location.country.title())
+        return msg, 'warning'
     affected_count = db_session.query(MediaFiles).filter_by(location_id=location_id).count()
     if affected_count:
         msg = 'Cannot remove Location #%s (%s, %s) because it has %s mediafile(s) using it.' % \
