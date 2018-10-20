@@ -54,7 +54,7 @@ class MediaFiles(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     user_relation = relationship('Users', backref=backref('mediafiles', lazy='dynamic'))
     path = Column(Text(), unique=True)
-    duration = Column(Integer)
+    duration = Column(Float)
     size = Column(Integer)
     title = Column(String(265))
     description = Column(Text())
