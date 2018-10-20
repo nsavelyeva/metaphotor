@@ -188,7 +188,7 @@ class Photo(Media):
 
     def __get_metadata_value(self, item, value, default=EMPTY):
         """A supplementary getter method to shorten the code."""
-        return self.metadata[item].get(value, default).decode('utf-8')
+        return self.metadata[item].get(value, default).decode('utf-8').replace('\x00', '')
 
     def _parse_metadata(self):
         """Collect desired values from EXIF data and keep them as attributes."""
@@ -196,7 +196,8 @@ class Photo(Media):
             return False
         self.title = self.__get_metadata_value('0th', piexif.ImageIFD.DocumentName)
         self.description = self.__get_metadata_value('0th', piexif.ImageIFD.ImageDescription)
-        self.comment = self.__get_metadata_value('Exif', piexif.ExifIFD.UserComment)
+        self.comment = self.__get_metadata_value('Exif', piexif.ExifIFD.UserComment) \
+                           .replace('ASCII', '')
         self.tags = self.__get_metadata_value('0th', piexif.ImageIFD.ImageHistory)
         self.created = self._get_exif_datetime() or ''
         self.year = self.year or self._get_year() or ''
