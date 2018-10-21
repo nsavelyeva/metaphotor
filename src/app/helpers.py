@@ -1,5 +1,6 @@
 import os
 import subprocess
+import shutil
 import json
 import logging
 from collections import OrderedDict
@@ -60,7 +61,7 @@ def move_file(old_path, new_path):
     file_name = new_path.split(os.sep)[-1]
     try:
         os.makedirs(new_path[:-len(file_name) - 1], exist_ok=True)
-        os.rename(old_path, new_path)
+        shutil.move(old_path, new_path)
     except (FileExistsError, PermissionError) as err:
         return Data(old_path, ['Cannot move "%s" to "%s" due to: %s.' % (old_path, new_path, err)])
     return Data(new_path, [])
