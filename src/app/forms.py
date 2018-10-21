@@ -19,7 +19,7 @@ def validate_file_exists(form, field):
 
 class MediaFilesForm(Form):
     user_id = SelectField('Ownership', coerce=int)
-    path = StringField('Path', [validators.Length(min=5, max=1024), validate_file_exists],
+    path = StringField('Path', [validators.Length(min=5, max=1024)],
                        render_kw={'size': 140})
     duration = FloatField('Duration', [validators.InputRequired()], default=0,
                           render_kw={'size': 30, 'readonly': 'readonly'})
