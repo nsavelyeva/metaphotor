@@ -30,7 +30,10 @@ def to_dict(data, columns):
         transform = lambda i: {columns[i]: getattr(data, columns[i])}
     i = 0
     while i < len(columns):
-        result.update(transform(i))
+        try:
+            result.update(transform(i))
+        except AttributeError:
+            return {}
         i += 1
     return result
 

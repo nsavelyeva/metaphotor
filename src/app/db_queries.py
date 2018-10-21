@@ -210,8 +210,9 @@ def get_mediafile_details(mediafile_id, fields):
                       .add_columns(*fields)
     logging.debug('Query executed: %s' % query)
     data = to_dict(query.first(), fields)
-    values = {'accessed': get_time_str(), 'visits': data['visits'] + 1}
-    update_mediafile_values(mediafile_id, values)
+    values = {'accessed': get_time_str(), 'visits': data['visits'] + 1 if 'visits' in data else 0}
+    if values['visits']:
+        update_mediafile_values(mediafile_id, values)
     return data
 
 
