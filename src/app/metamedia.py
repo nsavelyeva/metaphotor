@@ -283,7 +283,7 @@ class Video(Media):
 
     def convert_to_mp4(self, options=' -y -vcodec h264 -acodec aac -strict -2 -b:a 384k '):
         """
-        Convert a video file into MP4 (tested on .3gp, .mov, mpg, .avi). Do nothing for .mp4.
+        Convert a video file into MP4 (tested on .3gp, .mov, mpg, .avi, .mp4).
         Before conversion, a temporary file is created and after operation it is removed.
         If successful, the source file is also removed.
 
@@ -291,9 +291,6 @@ class Video(Media):
 
         > ffmpeg.exe -y -i video.mov.tmp  -vcodec h264 -acodec aac -strict -2 -b:a 384k  video.mp4
         """
-        if self.path.lower().endswith('.mp4'):
-            logging.debug('Conversion of "%s" is skipped: already in MP4 format.' % self.path)
-            return ''
         tmp_path = '%s.tmp' % self.path
         new_path = self.path[:self.path.rfind('.')] + '.MP4'
         # Create a temporary file:
