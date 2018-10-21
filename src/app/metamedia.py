@@ -148,6 +148,8 @@ class Photo(Media):
         except IOError as err:
             logging.error('Cannot save "%s" after metadata update due to: %s.' % (self.path, err))
             return False
+        finally:
+            self.media.close()
         return True
 
     def _get_exif_datetime(self):
