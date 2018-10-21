@@ -1,7 +1,8 @@
 import os
 import json
 from functools import wraps
-from flask import session, render_template, redirect, url_for, request, jsonify, flash, send_file
+from flask import session, render_template, redirect, abort, url_for, \
+    request, jsonify, flash, send_file
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app
 from .forms import MediaFilesForm, LocationsForm, TagsForm, SettingsForm, \
@@ -317,6 +318,8 @@ def view_mediafile(mediafile_id):
               MediaFiles.created, MediaFiles.imported, MediaFiles.updated, MediaFiles.accessed,
               MediaFiles.visits, MediaFiles.location_id]
     media_file = db_queries.get_mediafile_details(mediafile_id, fields)
+    if not media_file:
+        abort(404, 'Media file #%s is missing (was deleted or never existed).' % mediafile_id)
     data, points = helpers.get_media_per_countries_counts(session.get('user_id', 0), [media_file])
     return render_template('item.html', session=session, table='mediafiles', fields=media_file,
                            item=media_file, points=points, data=data,
@@ -335,6 +338,8 @@ def inspect_mediafile(mediafile_id):
               MediaFiles.coords, Locations.city, MediaFiles.year, MediaFiles.created,
               MediaFiles.imported, MediaFiles.updated, MediaFiles.accessed, MediaFiles.visits]
     item_db = db_queries.get_mediafile_details(mediafile_id, fields)
+    if not item_db:
+        abort(404, 'Media file #%s is missing (was deleted or never existed).' % mediafile_id)
     item_file = MultiMedia.detect(item_db['path'], app.config,
                                   ffmpeg_path=app.config['FFMPEG_PATH'],
                                   ffprobe_path=app.config['FFPROBE_PATH'])
@@ -408,6 +413,8 @@ def edit_mediafile(mediafile_id):
       (using FFMPEG executable for videos or Python module pyexif to edit EXIF tags for photos).
     """
     media = db_queries.get_mediafile(mediafile_id)
+    if not media:
+        abort(404, 'Media file #%s is missing (was deleted or never existed).' % mediafile_id)
     form = MediaFilesForm(obj=media) if request.method == 'GET' else MediaFilesForm(request.form)
     form.user_id.choices = helpers.get_users_choices()
     form.location_id.choices = helpers.get_locations_choices()
@@ -494,6 +501,8 @@ def view_location(location_id):
     If successful, redirect to a page containing a paginated list of all locations stored in the DB.
     """
     location = db_queries.get_location(location_id, as_dict=True)
+    if not location:
+        abort(404, 'Location #%s is missing (was deleted or never existed).' % location_id)
     return render_template('item.html', session=session, item=location)
 
 
@@ -505,6 +514,8 @@ def edit_location(location_id):
     If successful, redirect to a page containing a paginated list of all locations stored in the DB.
     """
     location = db_queries.get_location(location_id)
+    if not location:
+        abort(404, 'Location #%s is missing (was deleted or never existed).' % location_id)
     form = LocationsForm(obj=location)
     if request.method == 'POST' and form.validate():
         msg, style = db_queries.update_location(request.form, location_id)
@@ -569,6 +580,8 @@ def list_tags(page):
 def view_tag(tag_id):
     """Having a tag id, route to the page to view the tag details."""
     tag = db_queries.get_tag(tag_id, as_dict=True)
+    if not tag:
+        abort(404, 'Tag #%s is missing (was deleted or never existed).' % tag_id)
     return render_template('item.html', session=session, item=tag)
 
 
@@ -580,6 +593,8 @@ def edit_tag(tag_id):
     If successful, redirect to a web page containing a paginated list of all tags stored in the DB.
     """
     tag = db_queries.get_tag(tag_id)
+    if not tag:
+        abort(404, 'Tag #%s is missing (was deleted or never existed).' % tag_id)
     form = TagsForm(obj=tag)
     if request.method == 'POST' and form.validate():
         msg, style = db_queries.update_tag(request.form, tag_id)
@@ -645,6 +660,8 @@ def view_user(user_id):
     Password hashes will be masked as asterisks.
     """
     user = db_queries.get_user(user_id, as_dict=True)
+    if not user:
+        abort(404, 'User #%s is missing (was deleted or never existed).' % user_id)
     return render_template('item.html', session=session, item=user)
 
 
@@ -661,6 +678,8 @@ def edit_user(user_id):
           and is responsible for access to media files with user_id=0 for public viewing.
     """
     user = db_queries.get_user(user_id)
+    if not user:
+        abort(404, 'User #%s is missing (was deleted or never existed).' % user_id)
     form = UsersForm(obj=user)
     if request.method == 'POST' and form.validate():
         password_hash = None
@@ -770,16 +789,14 @@ def settings_view():
 
 
 @app.errorhandler(404)
-def page_not_found(e):
+def page_not_found(error):
     """Route to the page which handles '404 Not Found' errors."""
-    error = 'Page Not Found'
     return render_template('error.html', session=session, code=404, error=error), 404
 
 
 @app.errorhandler(500)
-def internal_server_error(e):
+def internal_server_error(error):
     """Route to the page which handles '500 Internal Server Error' errors."""
-    error = 'Internal Server Error'
     return render_template('error.html', session=session, code=500, error=error), 500
 
 

@@ -2,11 +2,15 @@
 
 {% block content %}
 
-<div class="panel panel-danger">
-	<div class="panel-heading">Error {{ code }}</div>
-	<div class="panel-body">
+<br>
+
+<div class="card">
+	<h5 class="card-header">Error {{ code }}</h5>
+	<div class="card-body">
 		<p>Ooops... {{ error }}.</p>
-		<p><a class="btn btn-default" href="javascript:history.back()">Go Back</a></p>
+		<p class="card-text">
+			<a class="btn btn-default" href="javascript:history.back()">Go Back</a>
+		</p>
 	</div>
 </div>
 
