@@ -1,13 +1,12 @@
-# TODO: add default locations
 import json
 from datetime import datetime
 from flask_sqlalchemy import Pagination
 from sqlalchemy import exc
-from app import app
-from sqlalchemy import Column, String, Integer, Float, Text, ForeignKey, create_engine, event
-from sqlalchemy.engine import Engine
+from sqlalchemy import Column, String, Integer, Float, Text, ForeignKey, create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
+from app import app
+from .data import USERS, PLACES
 
 
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], convert_unicode=True)
@@ -193,23 +192,17 @@ def startup():
     """Create database and all the tables, insert all predefined data into tables."""
     Base.metadata.create_all(engine)
     # Add all predefined locations, default (unknown) location will have id=0:
-    places = [(0, 0, 'unknown', 'n/a', ''),
-              (53.87303611111111, 27.65790833333333, 'minsk', 'belarus', 'by')]
-    for place in places:
+    for place in PLACES:
         latitude, longitude, city, country, code = place
         location = Locations(latitude, longitude, city, country, code)
-        if place == places[0]:
+        if place == PLACES[0]:
             location.id = 0
         db_session.add(location)
     # Add all predefined users, default (reserved for public access) user will have id=0:
-    users = [
-      ('public', ''),
-      ('admin', 'sha256$nF1Y8wmz$db14a63bb3a2a728ca80b2e952901d3cfbcbd89bfc47c0be3eb1a66908ec6f5c')
-    ]
-    for user in users:
+    for user in USERS:
         login, password = user
         person = Users(login, password)
-        if user == users[0]:
+        if user == USERS[0]:
             person.id = 0
         db_session.add(person)
     # Commit all the above queries:

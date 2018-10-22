@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 from .models import MediaFiles, get_time_str
 from .metamedia import MultiMedia, get_file_ctime, format_timestamp
 from . import db_queries
-from .geo_tools import COUNTRIES
+from .data import COUNTRIES
 
 
 class Data:
