@@ -199,12 +199,14 @@ def parallel_scan(app_config, user_id, media_files):
     :param media_files: a list of strings - absolute paths of media files to be processed.
     :return: True.
     """
-    with open('scan.json', 'w+') as scan_progress_file:
-        scan_progress_file.write(json.dumps({'total': len(media_files), 'passed': 0, 'failed': 0}))
     total = len(media_files)
     passed, lock_passed = Value('i', 0), Lock()
     failed, lock_failed = Value('i', 0), Lock()
-    args = [(app_config, user_id, path, total, passed, lock_passed, failed, lock_failed)
+    declined = ''
+    with open('scan.json', 'w+') as scan_progress_file:
+        data = json.dumps({'total': total, 'passed': 0, 'failed': 0, 'declined': declined})
+        scan_progress_file.write(data)
+    args = [(app_config, user_id, path, total, passed, lock_passed, failed, lock_failed, declined)
             for path in media_files]
     pool = ThreadPool(8)
     pool.starmap(single_scan, args)
@@ -213,7 +215,7 @@ def parallel_scan(app_config, user_id, media_files):
     return True
 
 
-def single_scan(app_config, user_id, path, total, passed, lock_passed, failed, lock_failed):
+def single_scan(app_config, user_id, path, total, passed, lock_passed, failed, lock_failed, declined):
     """
     Analyze a single media file:
     read EXIF tags from photo files or custom metadata from video files
@@ -228,6 +230,7 @@ def single_scan(app_config, user_id, path, total, passed, lock_passed, failed, l
     :param lock_passed: a Lock() value to stay safe-thread in counting successfully processed files.
     :param failed: an integer value - a count of all processed media files which failed.
     :param lock_failed: a Lock() value to stay safe-thread in counting failed files.
+    :param declined: a string of semicolon-separated list of absolutte paths of declined files.
     :return: True.
     """
     data = add_mediafile(user_id, path, app_config)
@@ -237,9 +240,10 @@ def single_scan(app_config, user_id, path, total, passed, lock_passed, failed, l
     else:
         with lock_failed:
             failed.value += 1
-    status_info = json.dumps({'total': total, 'passed': passed.value, 'failed': failed.value})
+            declined += '%s;' % path
+    data = {'total': total, 'passed': passed.value, 'failed': failed.value, 'declined': declined}
     with open('scan.json', 'w+') as scan_progress_file:
-        scan_progress_file.write(status_info)
+        scan_progress_file.write(json.dumps(data))
     return True
 
 
@@ -267,7 +271,7 @@ def add_mediafile(user_id, path, app_config):
     # File creation year of the original file
     created = format_timestamp(get_file_ctime(path), '%Y-%m-%d %H:%M:%S')
     # Convert non-MP4 videos into MP4 (tested for '3gp', 'mpg', 'mpeg', 'mov', 'avi' - works well)
-    if multimedia.path[multimedia.path.rfind('.')+1:].lower() not in ['jpg', 'jpeg', 'mp4']:
+    if multimedia.path[multimedia.path.rfind('.') + 1:].lower() not in ['jpg', 'jpeg', 'mp4']:
         metadata = '-metadata copyright="%s" ' % created
         multimedia.convert_to_mp4(' -y -vcodec h264 -acodec aac -strict -2 -b:a 384k %s' % metadata)
     # Add tags if new ones were discovered

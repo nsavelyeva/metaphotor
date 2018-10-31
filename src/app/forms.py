@@ -31,8 +31,9 @@ class MediaFilesForm(Form):
                             render_kw={'rows': 3, 'cols': 100})
     location_id = SelectField('Location', coerce=int, render_kw={'onchange': 'load_coords()'})
     coords = StringField('Coordinates', render_kw={'size': 140})
-    year = SelectField('Year', [validators.NumberRange(1970, YEAR)], coerce=int,
-                       default=YEAR, choices=[(year, year) for year in range(1970, YEAR + 1)])
+    year = SelectField('Year', [validators.NumberRange(1970, YEAR)], coerce=int, default=YEAR,
+                       choices=[(0, 'Not Detected')] + \
+                               [(year, year) for year in range(1970, YEAR + 1)])
     created = StringField('Created', [validators.DataRequired(), validators.Regexp(regex=DATE)],
                           render_kw={'size': 140})
 

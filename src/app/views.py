@@ -51,13 +51,18 @@ def scan():
 @app.route('/_scan_status')
 def scan_status():
     """
-    On AJAX request - read scan statistics from 'scan.json' file.
+    On AJAX request - read scan statistics from 'scan.json' file:
+    - numbers of total/passed/failed files;
+    - a string of semicolon-separated absolute paths of declined files.
 
-    :return: a jsonified response containing scan statistics - number of total/passed/failed files.
+    :return: a jsonified response of scan statistics.
     """
     with open('scan.json', 'r+') as scan_progress_file:
         data = json.loads(scan_progress_file.read())
-    return jsonify(total=data['total'], failed=data['failed'], passed=data['passed'])
+    return jsonify(total=data['total'],
+                   failed=data['failed'],
+                   passed=data['passed'],
+                   declined=data['declined'])
 
 
 @app.route('/_get_city_coords')

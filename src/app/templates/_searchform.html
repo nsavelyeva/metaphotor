@@ -87,6 +87,11 @@
 								select_year.appendChild(new Option(year, year, false, false))
 							}
 						}
+						if (choice == "0") {
+							select_year.appendChild(new Option("Not Detected", 0, false, true))
+						} else {
+							select_year.appendChild(new Option("Not Detected", 0, false, false))
+						}
 					</script>
 				</div>
 				<legend class="col-2">Location:</legend>

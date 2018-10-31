@@ -12,6 +12,7 @@ import piexif.helper
 from PIL import Image
 from ffmpy import FFmpeg, FFprobe, FFRuntimeError, FFExecutableNotFoundError
 from abc import ABC, abstractmethod
+from . import geo_tools
 
 
 EMPTY = bytes(''.encode('utf8'))
@@ -84,10 +85,14 @@ class Media(ABC):
         Note: return None if file does not exist or cannot be accessed
         """
         if self.created:
-            return int(self.created[:4])
+            try:
+                return int(self.created[:4])
+            except ValueError:
+                logging.warning('Could not extract year from "%s".' % self.created)
         timestamp = get_file_ctime(self.path)
         if timestamp:
             return format_timestamp(timestamp, '%Y')
+        logging.warning('Could not detect year for "%s".' % self.path)
         return None
 
     def __str__(self):
@@ -161,7 +166,7 @@ class Photo(Media):
             parts = {'year': dat[0:4], 'month': dat[5:7], 'day': dat[8:10],
                      'hour': dat[11:13], 'minute': dat[14:16], 'second': dat[17:19]}
             return '%(year)s-%(month)s-%(day)s %(hour)s:%(minute)s:%(second)s' % parts
-        logging.error('Cannot format EXIF Datetime: "%s" -> "YYYY-mm-dd HH:MM:SS"' % dat)
+        logging.warning('Cannot format EXIF Datetime: "%s" -> "YYYY-mm-dd HH:MM:SS"' % dat)
         return None
 
     @staticmethod
@@ -190,7 +195,7 @@ class Photo(Media):
 
     def __get_metadata_value(self, item, value, default=EMPTY):
         """A supplementary getter method to shorten the code."""
-        return self.metadata[item].get(value, default).decode('utf-8').replace('\x00', '')
+        return self.metadata[item].get(value, default).decode('utf-8', 'ignore').replace('\x00', '')
 
     def _parse_metadata(self):
         """Collect desired values from EXIF data and keep them as attributes."""
@@ -280,7 +285,13 @@ class Video(Media):
                                           '-show_format', '-show_private_data'],
                           inputs={self.path: None})
         logging.debug('Running FFprobe command "%s".' % ffprobe.cmd)
-        stdout = ffprobe.run(stdout=subprocess.PIPE)[0]
+        stdout = '{}'
+        try:
+            stdout = ffprobe.run(stdout=subprocess.PIPE)[0]
+        except FFRuntimeError as err:
+            logging.error('FFprobe command failed due to: %s.' % err)
+        except FFExecutableNotFoundError as err:
+            logging.error('FFprobe command "%s" failed due to: %s.' % (ffprobe.cmd, err))
         return json.loads(stdout)
 
     def convert_to_mp4(self, options=' -y -vcodec h264 -acodec aac -strict -2 -b:a 384k '):

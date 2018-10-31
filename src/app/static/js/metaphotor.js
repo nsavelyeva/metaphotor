@@ -70,19 +70,21 @@ function scan_media() {
 
 function scan_status() {
 	// Read scan progress from server and update statistics and refresh progress bar;
-	// once 100% is reached, stop calling for scan process updates.
+	// once 100% (passed + failed == total) is reached, stop calling for scan process updates.
 	$.getJSON("/_scan_status", function(data) {
 		total = parseInt(data.total)
 		passed = parseInt(data.passed)
 		failed = parseInt(data.failed)
+		declined = data.declined == '' ? '<span style="color: green">None</span>' : data.declined
 		progress = Math.ceil(100 * (passed + failed) / total)
 		content = '<span>Total items found: ' + total + '</span><div class="progress">'
 		content += '<div class="progress-bar bg-info" role="progressbar" style="width: ' + progress + '%" aria-valuenow="' 
 		content += (passed + failed) + '" aria-valuemin="0" aria-valuemax="' + total + '">' + progress + '%</div></div>'
 		content += '<span style="color: green">Passed: ' + passed + '</span><br>'
-		content += '<span style="color: red">Failed: ' + failed + '</span>'
+		content += '<span style="color: red">Failed: ' + failed + '</span><br><br>'
+		content += '<span>Declined files:</span><br><pre style="color: red">' + declined.replace(/;/g, '<br>') + '</pre>'
 		$("#scan_progress").html(content);
-		if (progress == 100) {
+		if (total > 0 && passed + failed == total) {
 			clearInterval(scan_status_interval)
 		}
 	});  // getJSON

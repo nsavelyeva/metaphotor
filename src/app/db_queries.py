@@ -103,7 +103,7 @@ def get_all_mediafiles(user_id, params=None, fields=None):
                       .outerjoin(Users, MediaFiles.user_id == Users.id)
 
     year = params.get('year', 'any')
-    if year != 'any' and re.match('[1-2]{1}[0-9]{3}', year):
+    if year != 'any' and re.match('[1-2]{1}[0-9]{3}', year) or year == '0':
         query = query.filter(MediaFiles.year == year)
 
     location = params.get('location', 'any')
@@ -264,14 +264,18 @@ def create_mediafile(user_id, media_object):
     """Create an entry in 'mediafiles' table."""
     media_file = MediaFiles(user_id or 0, media_object.path, media_object.duration,
                             media_object.title, media_object.description, media_object.comment,
-                            media_object.tags, media_object.coords, media_object.location_id,
-                            media_object.year, media_object.created, media_object.size)
+                            media_object.tags, media_object.coords, media_object.location_id or 0,
+                            media_object.year or 0, media_object.created, media_object.size)
     try:
         db_session.add(media_file)
         db_session.commit()
     except exc.IntegrityError as err:
         db_session.rollback()
         return 'Cannot add Media File "%s" - already exists: %s.' % (media_object.path, err), \
+               'warning', None
+    except Exception as err:
+        db_session.rollback()
+        return 'Cannot add Media File "%s" due to: %s.' % (media_object.path, err), \
                'warning', None
     return 'Media File "%s" has been added.' % media_object.path, 'success', media_file
 
@@ -303,9 +307,9 @@ def create_user(login, password):
 
 def create_location(city, country, code, latitude=None, longitude=None):
     """Create an entry in 'locations' table."""
-    city = city.strip().lower()
-    country = country.strip().lower()
-    code = code.strip().upper()
+    city = city.strip().lower() if city else ''
+    country = country.strip().lower() if country else ''
+    code = code.strip().upper() if code else ''
     if city:
         try:
             if not (isinstance(latitude, float) and isinstance(longitude, float)):
