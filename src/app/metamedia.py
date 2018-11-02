@@ -125,7 +125,14 @@ class Photo(Media):
         return image
 
     def read_metadata(self):
-        """Obtain EXIF metadata of the Photo JPEG-file using piexif.load()."""
+        """
+        Obtain EXIF metadata of the Photo JPEG-file using piexif.load().
+        Note: as mentioned at http://dev.exiv2.org/projects/exiv2/wiki/The_Metadata_in_JPEG_files,
+        besides JPEG/Exif there is a high probability to meet photos of JPEG/JFIF format since it is
+        also popular - in this case read_metadata() will return None,
+        and, in order to have photo creation time, we need to read file attributes explicitly
+        (and this is taken care of in _parse_metadata() method).
+        """
         metadata = None
         self.media = self.load_media()
         if self.media and self.media.info and 'exif' in self.media.info:
@@ -199,7 +206,12 @@ class Photo(Media):
 
     def _parse_metadata(self):
         """Collect desired values from EXIF data and keep them as attributes."""
-        if not self.metadata:
+        if not self.metadata:  # E.g. if we have a photo of JPEG/JFIF format instead of JPEG/Exif
+            # Then just keep file creation time and extract year from it:
+            timestamp = get_file_ctime(self.path)
+            if timestamp:
+                self.created = format_timestamp(timestamp, '%Y-%m-%d %H:%M:%S')
+            self.year = self._get_year() or ''
             return False
         self.title = self.__get_metadata_value('0th', piexif.ImageIFD.DocumentName)
         self.description = self.__get_metadata_value('0th', piexif.ImageIFD.ImageDescription)
