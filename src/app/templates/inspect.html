@@ -13,7 +13,12 @@
 				<li>Such fields as <i>Id, Login, Size, Imported, Updated, Accessed, Visits</i> are not stored inside the file and highlighted in <span style="color: orange">orange</span> color as non-critical deviation.</li>
 				<li><i>Size</i> is highlighted in <span style="color: orange">orange</span> color as non-critical deviation because metadata updates are written into the file but size in the database remains same as it was in the original file.</li>
 				<li><i>City</i> <span style="color: orange">unknown</span> is not stored inside the file and is not considered as critical deviation.</li>
-				<li>All lines highlighted in <span style="color: red">red</span> are most probably caused by some defect in MetaPhotor and this should be investigated and addressed.</li>
+				<li>
+					All lines highlighted in <span style="color: red">red</span> are most probably caused by some defect in MetaPhotor and this should be investigated and addressed.
+					<br>However, if metadata has been updated and written only into database and not inside the photo file,
+					then most probably we have a photo of non-JPEG/Exif format, such as JPEG/JFIF which is also popular -
+					read more at <a href="http://dev.exiv2.org/projects/exiv2/wiki/The_Metadata_in_JPEG_files" target="_blank">http://dev.exiv2.org/projects/exiv2/wiki/The_Metadata_in_JPEG_files</a>.
+				</li>
 			</ul>
 		</p>
 	</div>
