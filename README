@@ -20,7 +20,7 @@ Howto:
     - Open http://localhost/login in your browser and login as "admin/admin" (note, default admin password can be changed at http://localhost/users/edit/1).
     - At http://localhost/settings make sure the absolute path to the media folder is correct and click on "Scan Media Files" button.
   * Stop all containers:
-    - Run the command "docker-compose down -v" in a terminal window (note, this is safe to keep the data since PostgreSQL stores it in the folder "metaphotor/deploy/volumes/postgresql_data").
+    - Run the command "docker-compose down -v" in a terminal window (note, this is safe to keep the data since PostgreSQL stores it in the folder "metaphotor/deploy/variant-docker/volumes/postgresql_data").
   * Remove data about media files from the database, if you wish to start over with initial deployment:
     - Stop all containers as described above.
     - Remove the folder "metaphotor/deploy/variant-docker/volumes/postgresql_data".
