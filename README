@@ -13,7 +13,7 @@ Tools:
 
 Howto:
   * Deploy the app:
-    - Navigate to the folder "metaphotor/deploy".
+    - Navigate to the folder "metaphotor/deploy/variant-docker".
     - Adjust values for environment variables in ".env" file.
     - Run the command "docker-compose up -d --build" in a terminal window.
   * Import video and photo files:
@@ -23,7 +23,7 @@ Howto:
     - Run the command "docker-compose down -v" in a terminal window (note, this is safe to keep the data since PostgreSQL stores it in the folder "metaphotor/deploy/volumes/postgresql_data").
   * Remove data about media files from the database, if you wish to start over with initial deployment:
     - Stop all containers as described above.
-    - Remove the folder "metaphotor/deploy/volumes/postgresql_data".
+    - Remove the folder "metaphotor/deploy/variant-docker/volumes/postgresql_data".
 
 Features:
   * Discover photo and video files on the local storage and display the ongoing scan progress.
