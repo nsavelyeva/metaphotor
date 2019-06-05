@@ -1,0 +1,19 @@
+---
+apt_postgresql_packages:
+  - postgresql
+  - postgresql-contrib
+  - libpq-dev
+
+yum_postgresql_packages:
+  - postgresql
+  - postgresql-server
+  - postgresql-contrib
+  - postgresql-libs
+
+postgresql_python_library: python-psycopg2
+
+postgresql_locales:
+  - 'en_US.UTF-8'
+
+postgresql_user: postgres
+postgresql_group: postgres

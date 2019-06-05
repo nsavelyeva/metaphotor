@@ -1,0 +1,16 @@
+---
+- name: Include deploy for Debian systems
+  include: postgresql_debian.yaml
+  when: ansible_os_family == 'Debian'
+
+- name: Include deploy for RedHat systems
+  include: postgresql_redhat.yaml
+  when: ansible_os_family == 'RedHat'
+
+- name: Setup DB
+  include: setup.yaml
+# - name: Ensure PostgreSQL is started and enabled on boot.
+#   service:
+#     name: "{{ postgresql_daemon }}"
+#     state: "{{ postgresql_service_state }}"
+#     enabled: "{{ postgresql_service_enabled }}"

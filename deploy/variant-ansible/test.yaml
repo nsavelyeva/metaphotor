@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: SET. Host name
+      hostname:
+        name: "{{ inventory_hostname }}"
+
+- hosts: db
+  become: yes
+  roles:
+    - deploy_db
+
+# - hosts: fe
+#   become: yes
+#   roles:
+#     - deploy_fe
+#     - setup_fe
+#   post_tasks:
+    # Validation tasks  

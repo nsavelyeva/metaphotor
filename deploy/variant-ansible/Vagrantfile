@@ -1,0 +1,30 @@
+MACHINES = {
+  'fe' =>  { vcpu: '1', ram: '1024', ip: '192.168.1.51', interface: 'wlp2s0', size: '10240', file: "fe.vdi"},
+  'db' =>  { vcpu: '1', ram: '1024', ip: '192.168.1.52', interface: 'wlp2s0', size: '10240', file: "db.vdi"},
+}
+
+INSTANCES = MACHINES.flat_map do |server_name, server|
+  server.merge({
+    :vagrant_name => "#{server_name}",
+  })
+end
+
+Vagrant.configure("2") do |vagrant|
+  vagrant.ssh.insert_key = false
+  INSTANCES.each do |instance|
+    vagrant.vm.define instance[:vagrant_name], autostart: false do |machine|
+      machine.vm.box = "bento/ubuntu-16.04"
+      machine.vm.network "public_network", ip: instance[:ip], bridge: instance[:interface]
+      machine.vm.provider "virtualbox" do |vb|
+        vb.gui = $vm_gui
+        vb.memory =  instance[:ram]
+        vb.cpus = instance[:vcpu]
+        if !File.exist?(instance[:file])
+            vb.customize ['createhd', '--filename',instance[:file], '--variant', 'Fixed', '--size',  instance[:size]]
+        end
+        vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', instance[:file]]
+      end
+    end
+  end
+
+end
