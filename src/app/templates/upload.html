@@ -18,12 +18,17 @@
 	<div class="card-body">
 		<h5 class="card-title">Keep in mind</h5>
 		<p class="card-text">
-			Once the file is uploaded, you will be redirected to the edit page where you can change the path and
-			the file will be moved there from default location. You can do this any time you decide to edit path.
-			<br>From the below list of already existing paths, copy the desired path to move the file into.
-			<br>Note: specifying non-existing folders is allowed - they will be created.
+			Once the file is uploaded, you will be redirected to the edit page where you can change file metadata,
+			e.g. file ownership from yours to public and file creation year from current year to the desired value.
+			<br>Changing file path means the file will be moved there from the current location.
+			<br><br>File path should be a sub-folder of MEDIA_FOLDER setting
+			(by default, it is /opt/metaphotor/app/media)
+			and should not contain hidden folders and any links to parent path (i.e. "/." and ".." are not allowed).
+			<br>Otherwise, the file will be saved into the upload folder (by default, it is /opt/metaphotor/app/uploads)
+			in a sub-folder equal to user id (by default, the access is private, but can be changed to public).
+			<br><br>Below you can view existing paths.
+			<br>Note: specifying non-existing folders and sub-folders is allowed - they will be created.
 		</p>
-		
 	</div>
 </div>
 

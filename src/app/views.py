@@ -32,7 +32,8 @@ def login_required(route_function):
 @app.route('/_scan')
 def scan():
     """
-    On AJAX request - scan the folders and register all discovered media files with public access.
+    On AJAX request - scan the media folder app.config['MEDIA_FOLDER']
+    and register all discovered media files with public access.
     Only files with allowed extensions (see app.config['ALLOWED_EXTENSIONS']) will be processed.
 
     Note! Entries of previously scanned files (in fact, entries about all public files - user_id=0)
@@ -40,9 +41,27 @@ def scan():
 
     :return: a jsonified response containing the total number of discovered files.
     """
-    all_media_files = helpers.collect_media_files(app.config['MEDIA_FOLDER'],
-                                                  app.config['ALLOWED_EXTENSIONS'])
-    db_queries.remove_previously_scanned()
+    all_media_files = helpers.collect_media_files(app.config['MEDIA_FOLDER'], app.config, False)
+    db_queries.remove_previously_scanned(app.config['MEDIA_FOLDER'])
+    public_user_id = 0  # just to emphasize that all scanned files will be available for any user
+    helpers.parallel_scan(app.config, public_user_id, all_media_files)
+    return jsonify(total=len(all_media_files))
+
+
+@app.route('/_scan_increment')
+def scan_increment():
+    """
+    On AJAX request - scan the watch folder app.config['WATCH_FOLDER']
+    and register all discovered media files with public access.
+    Only files with allowed extensions (see app.config['ALLOWED_EXTENSIONS']) will be processed.
+
+    Note! Entries of previously scanned files will not be affected.
+          If a file already exists in media folder, no overwrites will happen,
+          and the increment file will remain in watch folder.
+
+    :return: a jsonified response containing the total number of discovered files.
+    """
+    all_media_files = helpers.collect_media_files(app.config['WATCH_FOLDER'], app.config, True)
     public_user_id = 0  # just to emphasize that all scanned files will be available for any user
     helpers.parallel_scan(app.config, public_user_id, all_media_files)
     return jsonify(total=len(all_media_files))
@@ -63,6 +82,28 @@ def scan_status():
                    failed=data['failed'],
                    passed=data['passed'],
                    declined=data['declined'])
+
+
+@app.route('/_hint')
+def hint():
+    """
+    On AJAX request - return the list of all non-hidden (i.e. not prefixed with a dot) sub-folders of the given folder.
+    This is used to pop up hints when uploading a new media file,
+    so moving a new file into desired location becomes more human-friendly.
+    In fact, all the path hints will start with the value specified in app.config['MEDIA_FOLDER'].
+
+    Note: the folders not prefixed with app.config['MEDIA_FOLDER']) will result in empty list of hints.
+          It is allowed to specify not yet existing sub-folders.
+
+    :return: a list of strings - names of all non-hidden sub-folders of the folder provided in the request.
+    """
+    hints = []
+    folder = request.args.get('folder').strip()
+    folder = folder[:folder.rfind('/')]
+    if folder.startswith(app.config['MEDIA_FOLDER']):
+        hints = [{'hint': os.path.join(app.config['MEDIA_FOLDER'], item)} for item in os.listdir(folder)
+                 if not item.startswith('.') and os.path.isdir(os.path.join(app.config['MEDIA_FOLDER'], item))]
+    return jsonify(hints)
 
 
 @app.route('/_get_city_coords')
@@ -387,7 +428,7 @@ def upload_media_file():
      - move the file to a different folder by changing its path, nonexisting folders will be created
     """
     form = UploadForm(request.form)
-    if request.method == "POST" and form.validate():
+    if request.method == 'POST' and form.validate():
         user_id = session.get('user_id', 0)  # in fact, user_id is never 0 (we use @login_required)
         upload_result = helpers.upload_file(user_id, request, app.config)
         if not upload_result.value:
@@ -747,6 +788,7 @@ def settings_update():
     form = SettingsForm(request.form)
     if request.method == 'POST' and form.validate():
         settings = {'MEDIA_FOLDER': request.form.get('media_folder'),
+                    'WATCH_FOLDER': request.form.get('watch_folder'),
                     'FFMPEG_PATH': request.form.get('ffmpeg_path'),
                     'FFPROBE_PATH': request.form.get('ffprobe_path'),
                     'MIN_FILESIZE': int(request.form.get('min_filesize')),
@@ -760,6 +802,7 @@ def settings_update():
         return render_template('settings.html',
                                session=session, settings=helpers.collect_settings(app.config))
     form.media_folder.data = app.config['MEDIA_FOLDER']
+    form.watch_folder.data = app.config['WATCH_FOLDER']
     form.ffmpeg_path.data = app.config['FFMPEG_PATH']
     form.ffprobe_path.data = app.config['FFPROBE_PATH']
     form.min_filesize.data = app.config['MIN_FILESIZE']
@@ -773,6 +816,7 @@ def settings_update():
 def settings_restore():
     """Route to the page to restore default values of customizable application settings."""
     default_settings = {'MEDIA_FOLDER': '/opt/metaphotor/app/media',
+                        'WATCH_FOLDER': '/opt/metaphotor/app/watch',
                         'FFMPEG_PATH': '/usr/bin/ffmpeg',
                         'FFPROBE_PATH': '/usr/bin/ffprobe',
                         'MIN_FILESIZE': 524288, 'MAX_FILESIZE': 1073741824, 'ITEMS_PER_PAGE': 100}

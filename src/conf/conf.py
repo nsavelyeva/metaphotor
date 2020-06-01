@@ -30,7 +30,7 @@ class BaseConf:
     CONFIG_FOLDER = CONFIG_FOLDER
     SETTINGS_FILE = CUSTOM_SETTINGS_FILE
     DATABASE = os.environ.get('POSTGRES_DB', 'metaphotor')
-    SQLALCHEMY_DATABASE_URI = 'postgresql://%s:%s@postgresql:5432/%s' % (\
+    SQLALCHEMY_DATABASE_URI = 'postgresql://%s:%s@postgresql:5432/%s' % (
                               os.environ.get('POSTGRES_USER', 'postgres'),
                               os.environ.get('POSTGRES_PASSWORD', 'password'),
                               DATABASE)
@@ -41,6 +41,7 @@ class BaseConf:
     TESTING = False
     # Below will be configurable by user:
     MEDIA_FOLDER = CUSTOM_SETTINGS['MEDIA_FOLDER']  # a folder with photos & videos to be imported
+    WATCH_FOLDER = CUSTOM_SETTINGS['WATCH_FOLDER']  # a folder with photos & videos to be imported as increment
     FFMPEG_PATH = CUSTOM_SETTINGS['FFMPEG_PATH']    # an absolute path to FFmpeg executable
     FFPROBE_PATH = CUSTOM_SETTINGS['FFPROBE_PATH']  # an absolute path to FFprobe executable
     MIN_FILESIZE = CUSTOM_SETTINGS['MIN_FILESIZE']  # a number of bytes

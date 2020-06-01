@@ -23,18 +23,18 @@ class MediaFilesForm(Form):
                        render_kw={'size': 140})
     duration = FloatField('Duration', [validators.InputRequired()], default=0,
                           render_kw={'size': 30, 'readonly': 'readonly'})
-    title = StringField('Title', [validators.Length(min=5, max=265)], render_kw={'size': 140})
-    tags = StringField('Tags', [validators.Length(min=3, max=256)], render_kw={'size': 140})
-    description = TextAreaField('Description', [validators.Length(min=3, max=1024)],
+    title = StringField('Title', [validators.Length(max=265)], render_kw={'size': 140})
+    tags = StringField('Tags', [validators.Length(max=256)], render_kw={'size': 140})
+    description = TextAreaField('Description', [validators.Length(max=1024)],
                                 render_kw={'rows': 3, 'cols': 100})
-    comment = TextAreaField('Comment', [validators.Length(min=3, max=1024)],
+    comment = TextAreaField('Comment', [validators.Length(max=1024)],
                             render_kw={'rows': 3, 'cols': 100})
     location_id = SelectField('Location', coerce=int, render_kw={'onchange': 'load_coords()'})
     coords = StringField('Coordinates', render_kw={'size': 140})
     year = SelectField('Year', [validators.NumberRange(1970, YEAR)], coerce=int, default=YEAR,
                        choices=[(0, 'Not Detected')] + \
                                [(year, year) for year in range(1970, YEAR + 1)])
-    created = StringField('Created', [validators.DataRequired(), validators.Regexp(regex=DATE)],
+    created = StringField('Created', [validators.Regexp(regex=f'^$|{DATE}')],
                           render_kw={'size': 140})
 
 
@@ -71,6 +71,7 @@ class LoginForm(Form):
 
 class SettingsForm(Form):
     media_folder = StringField('Media Folder', [validators.DataRequired()], render_kw={'size': 70})
+    watch_folder = StringField('Watch Folder', [validators.DataRequired()], render_kw={'size': 70})
     ffmpeg_path = StringField('FFMPEG Location', [validators.DataRequired(), validate_file_exists],
                               render_kw={'size': 70})
     ffprobe_path = StringField('FFProbe Location',
@@ -89,3 +90,7 @@ class SettingsForm(Form):
 
 class UploadForm(Form):
     upload = FileField('Upload media file')
+    folder = StringField('Move to folder', [validators.Length(min=5, max=1024),
+                                            validators.Regexp('[a-zA-Z0-9/\.]', message="Invalid path"),],
+                         default=os.path.join(app.config['MEDIA_FOLDER'], 'uploads'),
+                         render_kw={'size': 70})

@@ -1,1 +1,1 @@
-{"MEDIA_FOLDER": "/opt/metaphotor/app/media", "FFMPEG_PATH": "/usr/bin/ffmpeg", "FFPROBE_PATH": "/usr/bin/ffprobe", "MIN_FILESIZE": 524288, "MAX_FILESIZE": 1073741824, "ITEMS_PER_PAGE": 10}
+{"MEDIA_FOLDER": "/opt/metaphotor/app/media", "WATCH_FOLDER": "/opt/metaphotor/app/watch", "FFMPEG_PATH": "/usr/bin/ffmpeg", "FFPROBE_PATH": "/usr/bin/ffprobe", "MIN_FILESIZE": 524288, "MAX_FILESIZE": 1073741824, "ITEMS_PER_PAGE": 100}
