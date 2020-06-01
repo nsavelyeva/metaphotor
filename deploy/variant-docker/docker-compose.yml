@@ -12,7 +12,8 @@ services:
     command: uwsgi --ini /etc/uwsgi.ini
     volumes:
       - ./../../src:/opt/metaphotor
-      - ${MEDIA_FOLDER_ABS_PATH:-/mnt/media}:/opt/metaphotor/app/media
+      - ${MEDIA_FOLDER_ABS_PATH:-/mnt/media/camera}:/opt/metaphotor/app/media
+      - ${WATCH_FOLDER_ABS_PATH:-/mnt/media/ingest}:/opt/metaphotor/app/watch
     depends_on: 
       - postgresql
     environment:

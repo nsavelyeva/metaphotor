@@ -37,7 +37,7 @@
 		<th>Actual file metadata</th>
 	</tr>
 	{% for field in item_db.keys() %}
-	<tr style="color: {% if item_db[field] == item_file[field] %}green{% elif (field == 'city' and item_db['city'] == 'unknown') or field in ['id', 'login', 'size', 'imported', 'updated', 'accessed', 'visits'] %}orange{% else %}red{% endif %}">
+	<tr style="color: {% if item_db[field]|string|trim|lower == item_file[field]|string|trim|lower %}green{% elif (field == 'city' and item_db['city'] == 'unknown') or field in ['id', 'login', 'size', 'imported', 'updated', 'accessed', 'visits'] %}orange{% else %}red{% endif %}">
 		<th><i>{{ field | title }}</i></th>
 		<td>{% if field == "path" %}
 			<a href="javascript:show_mediafile_preview('{{ item_db['id'] }}', '{{ item_db['path'].replace('\\','\\\\') }}')">{{ item_db[field] }}</a><div id="preview-{{ item_db['id'] }}"></div>

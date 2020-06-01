@@ -22,7 +22,8 @@
 		<a class="btn btn-info" href="/settings/update" role="button">Change Settings</a>
 		<a class="btn btn-info" href="/settings/restore" role="button">Restore Defaults</a>
 		{% if session.get('logged_in') %}
-		<a class="btn btn-info" href="javascript:scan_media()" role="button">Scan Media Files</a>
+		<a class="btn btn-info" href="javascript:scan_media(false)" role="button">Scan Media Files</a>
+		<a class="btn btn-info" href="javascript:scan_media(true)" role="button">Incremental Scan</a>
 		{% else %}
 		<a class="btn btn-info" href=# role="button">Scan Media Files (login required)</a>
 		{% endif %}

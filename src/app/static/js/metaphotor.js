@@ -9,9 +9,32 @@ $(function() {
 			update_visits_accessed(Number(mediafile_id))
 		});
 
+        $('form:has("#folder")').on('keyup keypress', function(e) {
+            // Disable submitting the form on Enter - applies for forms having elements with id='folder'.
+            // In metaphotor, there is only one such form - the one used to upload a new media file: /mediafiles/add.
+            var keyCode = e.keyCode || e.which;
+            if (keyCode === 13) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        $('#folder').easyAutocomplete({
+            // When uploading a new media file, give hints on file locations.
+            url: function(folder) {
+                return '/_hint?folder=' + folder
+            },
+            list: {
+                match: { enabled: true },
+                sort: { enabled: true }
+            },
+            getValue: 'hint'
+        });
+
 	});  // onLoad function()
 
 });  // function()
+
 
 
 function get_city_coords(city) {
@@ -42,25 +65,27 @@ function load_coords() {
 	coords = document.getElementById("coords").value
 	city = $("#location_id option:selected").html().split(", ")[0].toLowerCase()
 	if (city == "unknown") {
-		coords = ""
-		$("#coords").val("")
-	}
+        coords = ""
+        $("#coords").val("")
+    }
 	else {
-		$.getJSON("/_load_coords", {"city": city, "coords": coords}, function(data) {
-			$("#coords").val(data.coords)
-		});  // getJSON
-	}
+        $.getJSON("/_load_coords", {"city": city, "coords": coords}, function(data) {
+            $("#coords").val(data.coords)
+        });  // getJSON
+    }
 }  // load_coords()
 
 
-function scan_media() {
+function scan_media(increment=false) {
 	// Start scan of media folder in parallel
 	// and start timer to update progress bar (update interval is 1 second)
 	scan_status_interval = setInterval(function() {
 		scan_status()
 	}, 1000); // time in milliseconds;
 
-	$.getJSON("/_scan", function(data) {
+    ajax_path = increment ? "/_scan_increment" : "/_scan";
+
+	$.getJSON(ajax_path, function(data) {
 		if ($("#scan_progress").html() == "") {
 		    scan_status()
 		}
@@ -70,13 +95,13 @@ function scan_media() {
 
 function scan_status() {
 	// Read scan progress from server and update statistics and refresh progress bar;
-	// once 100% (passed + failed == total) is reached, stop calling for scan process updates.
+	// if total is 0 or once 100% (passed + failed == total) is reached, stop calling for scan process updates.
 	$.getJSON("/_scan_status", function(data) {
 		total = parseInt(data.total)
 		passed = parseInt(data.passed)
 		failed = parseInt(data.failed)
 		declined = data.declined == '' ? '<span style="color: green">None</span>' : data.declined
-		progress = Math.ceil(100 * (passed + failed) / total)
+		progress = total == 0 ? 0 : Math.ceil(100 * (passed + failed) / (1.0 * total))
 		content = '<span>Total items found: ' + total + '</span><div class="progress">'
 		content += '<div class="progress-bar bg-info" role="progressbar" style="width: ' + progress + '%" aria-valuenow="' 
 		content += (passed + failed) + '" aria-valuemin="0" aria-valuemax="' + total + '">' + progress + '%</div></div>'
@@ -84,7 +109,7 @@ function scan_status() {
 		content += '<span style="color: red">Failed: ' + failed + '</span><br><br>'
 		content += '<span>Declined files:</span><br><pre style="color: red">' + declined.replace(/;/g, '<br>') + '</pre>'
 		$("#scan_progress").html(content);
-		if (total > 0 && passed + failed == total) {
+		if (total >= 0 && passed + failed == total) {
 			clearInterval(scan_status_interval)
 		}
 	});  // getJSON

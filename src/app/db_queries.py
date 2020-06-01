@@ -6,11 +6,19 @@ from .models import MediaFiles, Locations, Users, Tags, db_session, to_dict, get
 from . import geo_tools
 
 
-def remove_previously_scanned():
-    """Remove DB entries of all media files available for public access."""
-    affected_rows_count = db_session.query(MediaFiles).filter_by(user_id=0).delete()
+def remove_previously_scanned(path):
+    """Remove DB entries of all media files prefixed with the given path."""
+    query = db_session.query(MediaFiles) \
+        .filter(MediaFiles.path.like(f'{path}%'))
+    query.delete(synchronize_session='fetch')
     db_session.commit()
-    return affected_rows_count
+    return query.count()
+
+
+def is_path_registered(path):
+    """Verify if the given path already exists in the database and return a corresponding boolean."""
+    result = db_session.query(MediaFiles).filter_by(path=path).all()
+    return True if result else False
 
 
 def stats_data_by_type():
@@ -27,7 +35,10 @@ def stats_data_by_type():
 
 
 def stats_data_by_year():
-    """Collect entries from database and organize them into a structure acceptable by highcharts."""
+    """
+    Collect entries from database and organize them into a structure acceptable by highcharts.
+    Note: this method will work properly if there is at least 1 photo and 1 video file.
+    """
     videos = db_session.query(MediaFiles.year, func.count(MediaFiles.year)) \
                        .filter(MediaFiles.duration > 0) \
                        .group_by(MediaFiles.year) \

@@ -61,8 +61,10 @@ def move_file(old_path, new_path):
     file_name = new_path.split(os.sep)[-1]
     try:
         os.makedirs(new_path[:-len(file_name) - 1], exist_ok=True)
-        shutil.move(old_path, new_path)
-    except (FileExistsError, PermissionError) as err:
+        shutil.copy2(old_path, new_path)
+        shutil.copystat(old_path, new_path)
+        os.remove(old_path)
+    except (FileNotFoundError, FileExistsError, PermissionError) as err:
         return Data(old_path, ['Cannot move "%s" to "%s" due to: %s.' % (old_path, new_path, err)])
     return Data(new_path, [])
 
@@ -131,7 +133,10 @@ def is_allowed_file(file_name, allowed_extensions):
 
 def upload_file(user_id, request, app_config, file_name=None):
     """
-    Upload the file into the app.config[UPLOAD_FOLDER] inside a subfolder named as user id.
+    Upload the file to the specified location.
+    Note, the file creation year will be the current year.
+    If the given location does not start with app.config[MEDIA_FOLDER] or contains hidden sub-folders,
+    then the file will be saved in app.config[UPLOAD_FOLDER] inside a sub-folder named as user id.
 
     :param user_id: an integer number of user id which will be considered as owner (0 for public).
     :param request: an instance of request coming from browser.
@@ -152,10 +157,15 @@ def upload_file(user_id, request, app_config, file_name=None):
             file_allowed = is_allowed_file(upload.filename, app_config['ALLOWED_EXTENSIONS'])
             if file_allowed:
                 file_name = file_name or secure_filename(upload.filename)
-                user_folder = os.path.join(app_config['APP_FOLDER'], app_config['UPLOAD_FOLDER'],
-                                           str(user_id))
+                folder = request.form.get('folder', '').strip()
+                user_folder = folder if folder.startswith(app_config['MEDIA_FOLDER']) \
+                                        and '/.' not in folder \
+                                        and '..' not in folder \
+                                     else os.path.join(app_config['APP_FOLDER'],
+                                                       app_config['UPLOAD_FOLDER'],
+                                                       str(user_id))
                 if not os.path.exists(user_folder):
-                    os.mkdir(user_folder, 0o700)
+                    os.makedirs(user_folder, 0o700, exist_ok=True)
                 data.value = os.path.join(user_folder, file_name)
                 if os.path.isfile(data.value):
                     data.errors.append('Cannot upload file: already exists.')
@@ -167,22 +177,37 @@ def upload_file(user_id, request, app_config, file_name=None):
     return data
 
 
-def collect_media_files(parent_folder, allowed_extensions):
+def collect_media_files(parent_folder, app_config, check_db=False):
     """
     Collect absolute paths of media files from the given folder recursively into a list of strings.
     Files having not supported extensions will be skipped.
 
-    :param parent_folder: an absolute or relative path of the folder to search for media files in.
-    :param allowed_extensions: a list of strings representing file extensions in lower case, e.g.:
-                               ['jpg', 'jpeg', 'mov', 'mp4'].
+    :param parent_folder: a folder to scan the files in.
+    :param app_config: a dictionary of app settings to use values of allowed extensions, media and watch folders.
+    :param check_db: a boolean to perform additional check if the path is already registered in the database
+                     (makes sense to use True for incremental scans and False to initial scans and full re-scans).
     :return: a list of strings representing absolute paths of discovered media files.
     """
     all_media_files = []
+    declined = ''  # a string of semicolon-separated list of absolute paths of declined files.
     for relative_path, subdirs, files in os.walk(parent_folder):
         sub_folder = os.path.abspath(relative_path)
-        media_files = [os.path.join(sub_folder, file_name) for file_name in files
-                       if file_name[file_name.rfind('.') + 1:].lower() in allowed_extensions]
-        all_media_files.extend(media_files)
+        for file_name in files:
+            path = os.path.join(sub_folder, file_name)
+            if file_name[file_name.rfind('.') + 1:].lower() in app_config['ALLOWED_EXTENSIONS']:
+                if check_db is True:
+                    if db_queries.is_path_registered(path.replace(app_config['WATCH_FOLDER'],
+                                                                  app_config['MEDIA_FOLDER'], 1)):
+                        declined += '%s;' % path
+                    else:
+                        all_media_files.append(path)
+                else:
+                    all_media_files.append(path)
+            else:
+                declined += '%s;' % path
+    with open('scan.json', 'w') as scan_progress_file:
+        data = json.dumps({'total': len(all_media_files), 'passed': 0, 'failed': 0, 'declined': declined})
+        scan_progress_file.write(data)
     return all_media_files
 
 
@@ -199,23 +224,20 @@ def parallel_scan(app_config, user_id, media_files):
     :param media_files: a list of strings - absolute paths of media files to be processed.
     :return: True.
     """
-    total = len(media_files)
     passed, lock_passed = Value('i', 0), Lock()
     failed, lock_failed = Value('i', 0), Lock()
-    declined = ''
-    with open('scan.json', 'w+') as scan_progress_file:
-        data = json.dumps({'total': total, 'passed': 0, 'failed': 0, 'declined': declined})
-        scan_progress_file.write(data)
-    args = [(app_config, user_id, path, total, passed, lock_passed, failed, lock_failed, declined)
+    with open('scan.json', 'r') as scan_progress_file:
+        data = json.loads(scan_progress_file.read())
+    args = [(app_config, user_id, path, len(media_files), passed, lock_passed, failed, lock_failed)
             for path in media_files]
-    pool = ThreadPool(8)
+    pool = ThreadPool(2)
     pool.starmap(single_scan, args)
     pool.close()
     pool.join()
     return True
 
 
-def single_scan(app_config, user_id, path, total, passed, lock_passed, failed, lock_failed, declined):
+def single_scan(app_config, user_id, path, total, passed, lock_passed, failed, lock_failed):
     """
     Analyze a single media file:
     read EXIF tags from photo files or custom metadata from video files
@@ -230,20 +252,33 @@ def single_scan(app_config, user_id, path, total, passed, lock_passed, failed, l
     :param lock_passed: a Lock() value to stay safe-thread in counting successfully processed files.
     :param failed: an integer value - a count of all processed media files which failed.
     :param lock_failed: a Lock() value to stay safe-thread in counting failed files.
-    :param declined: a string of semicolon-separated list of absolutte paths of declined files.
+
     :return: True.
     """
+    declined = ''
+    if path.startswith(app_config['WATCH_FOLDER']):
+        old_path = path
+        path = path.replace(app_config['WATCH_FOLDER'], app_config['MEDIA_FOLDER'], 1)
+        result = move_file(old_path, path)
+        if result.errors:
+            return False
     data = add_mediafile(user_id, path, app_config)
-    if data.value:
-        with lock_passed:
-            passed.value += 1
-    else:
-        with lock_failed:
-            failed.value += 1
-            declined += '%s;' % path
-    data = {'total': total, 'passed': passed.value, 'failed': failed.value, 'declined': declined}
-    with open('scan.json', 'w+') as scan_progress_file:
-        scan_progress_file.write(json.dumps(data))
+    with open('scan.json', 'r+') as scan_progress_file:
+        if data.value:
+            with lock_passed:
+                passed.value += 1
+        else:
+            with lock_failed:
+                failed.value += 1
+                declined = path
+        content = json.loads(scan_progress_file.read())
+        if declined:
+            content['declined'] += declined
+        content['passed'] = passed.value
+        content['failed'] = failed.value
+        scan_progress_file.seek(0)
+        scan_progress_file.write(json.dumps(content))
+        scan_progress_file.truncate()
     return True
 
 
@@ -323,6 +358,8 @@ def collect_settings(app_config):
     settings = OrderedDict()
     settings['MEDIA_FOLDER'] = {'value': app_config['MEDIA_FOLDER'],
                                 'comment': 'Abs path to local folder containing media files'}
+    settings['WATCH_FOLDER'] = {'value': app_config['WATCH_FOLDER'],
+                                'comment': 'Abs path to local folder for incremental file ingestion'}
     settings['FFMPEG_PATH'] = {'value': app_config['FFMPEG_PATH'],
                                'comment': 'Abs path to ffmpeg executable'}
     settings['FFPROBE_PATH'] = {'value': app_config['FFPROBE_PATH'],
