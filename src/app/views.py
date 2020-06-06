@@ -101,8 +101,8 @@ def hint():
     folder = request.args.get('folder').strip()
     folder = folder[:folder.rfind('/')]
     if folder.startswith(app.config['MEDIA_FOLDER']):
-        hints = [{'hint': os.path.join(app.config['MEDIA_FOLDER'], item)} for item in os.listdir(folder)
-                 if not item.startswith('.') and os.path.isdir(os.path.join(app.config['MEDIA_FOLDER'], item))]
+        hints = [{'hint': os.path.join(folder, item)} for item in os.listdir(folder)
+                 if not item.startswith('.') and os.path.isdir(os.path.join(folder, item))]
     return jsonify(hints)
 
 
