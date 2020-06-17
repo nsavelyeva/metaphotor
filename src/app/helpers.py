@@ -23,6 +23,14 @@ class Data:
         return json.dumps(result, indent=4, sort_keys=True)
 
 
+def write_scan_error(msg):
+    """
+    Append the given message as a new line to the text file 'scan_err.log', which is cleaned before each scan/rescan.
+    """
+    with open('scan_err.log', 'a') as scan_errors_file:
+        scan_errors_file.write(msg + '\n')
+
+
 def get_subfolders_list(path):
     """
     Discover sub-folders of the given folder recursively.
@@ -181,6 +189,7 @@ def collect_media_files(parent_folder, app_config, check_db=False):
     """
     Collect absolute paths of media files from the given folder recursively into a list of strings.
     Files having not supported extensions will be skipped.
+    Errors occurred during the scan will be saved to scan_err.log file (note: this file is cleaned before each scan).
 
     :param parent_folder: a folder to scan the files in.
     :param app_config: a dictionary of app settings to use values of allowed extensions, media and watch folders.
@@ -208,6 +217,8 @@ def collect_media_files(parent_folder, app_config, check_db=False):
     with open('scan.json', 'w') as scan_progress_file:
         data = json.dumps({'total': len(all_media_files), 'passed': 0, 'failed': 0, 'declined': declined})
         scan_progress_file.write(data)
+    with open('scan_err.log', 'w'):
+        pass
     return all_media_files
 
 
@@ -226,9 +237,7 @@ def parallel_scan(app_config, user_id, media_files):
     """
     passed, lock_passed = Value('i', 0), Lock()
     failed, lock_failed = Value('i', 0), Lock()
-    with open('scan.json', 'r') as scan_progress_file:
-        data = json.loads(scan_progress_file.read())
-    args = [(app_config, user_id, path, len(media_files), passed, lock_passed, failed, lock_failed)
+    args = [(app_config, user_id, path, passed, lock_passed, failed, lock_failed)
             for path in media_files]
     pool = ThreadPool(2)
     pool.starmap(single_scan, args)
@@ -237,7 +246,7 @@ def parallel_scan(app_config, user_id, media_files):
     return True
 
 
-def single_scan(app_config, user_id, path, total, passed, lock_passed, failed, lock_failed):
+def single_scan(app_config, user_id, path, passed, lock_passed, failed, lock_failed):
     """
     Analyze a single media file:
     read EXIF tags from photo files or custom metadata from video files
@@ -247,13 +256,12 @@ def single_scan(app_config, user_id, path, total, passed, lock_passed, failed, l
     :param app_config: a dictionary containing the application configuration settings (=app.config).
     :param user_id: an integer number of user id which will be considered as owner (0 for public).
     :param path: an absolute path to the photo or video file.
-    :param total: an integer value - a total count of all discovered media files.
     :param passed: an integer value - a count of all successfully processed media files.
     :param lock_passed: a Lock() value to stay safe-thread in counting successfully processed files.
     :param failed: an integer value - a count of all processed media files which failed.
     :param lock_failed: a Lock() value to stay safe-thread in counting failed files.
 
-    :return: True.
+    :return: True if no errors occurred during the scan, otherwise False.
     """
     declined = ''
     if path.startswith(app_config['WATCH_FOLDER']):
@@ -261,8 +269,14 @@ def single_scan(app_config, user_id, path, total, passed, lock_passed, failed, l
         path = path.replace(app_config['WATCH_FOLDER'], app_config['MEDIA_FOLDER'], 1)
         result = move_file(old_path, path)
         if result.errors:
+            write_scan_error('%s failed: cannot move to %s due to %s' % (old_path, path, ';'.join(result.errors)))
             return False
-    data = add_mediafile(user_id, path, app_config)
+    try:
+        data = add_mediafile(user_id, path, app_config)
+    except Exception as err:
+        msg = '%s failed due to %s' % (path, err)
+        write_scan_error(msg)
+        data = Data(None, [msg])
     with open('scan.json', 'r+') as scan_progress_file:
         if data.value:
             with lock_passed:
@@ -273,13 +287,13 @@ def single_scan(app_config, user_id, path, total, passed, lock_passed, failed, l
                 declined = path
         content = json.loads(scan_progress_file.read())
         if declined:
-            content['declined'] += declined
+            content['declined'] += ';%s' % declined
         content['passed'] = passed.value
         content['failed'] = failed.value
         scan_progress_file.seek(0)
         scan_progress_file.write(json.dumps(content))
         scan_progress_file.truncate()
-    return True
+    return False if data.errors else True
 
 
 def add_mediafile(user_id, path, app_config):
