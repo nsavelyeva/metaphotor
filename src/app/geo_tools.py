@@ -13,7 +13,7 @@ def get_coords(city):
     """
     location = latitude = longitude = None
     try:
-        location = Nominatim().geocode(city, language='en')
+        location = Nominatim(timeout=10).geocode(city, language='en')
     except GeocoderQueryError as err:
         logging.error('Cannot get coordinates for city "%s" due to: %s.' % (city, err))
     if location:
@@ -32,7 +32,7 @@ def get_address(latitude, longitude):
     """
     location = city = country = code = None
     try:
-        location = Nominatim().reverse((latitude, longitude), language='en')
+        location = Nominatim(timeout=10).reverse((latitude, longitude), language='en')
     except GeocoderQueryError as err:
         logging.error('Cannot get location details for coordinates "%s,%s" due to: %s.' %
                       (latitude, longitude, err))
