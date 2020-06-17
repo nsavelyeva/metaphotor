@@ -36,7 +36,6 @@ $(function() {
 });  // function()
 
 
-
 function get_city_coords(city) {
 	// Load geo coordinates, country and country code for the given city,
 	// used in the form to add locations
@@ -133,6 +132,7 @@ function show_mediafile_preview(mediafile_id, mediafile_path) {
 	$("#preview-" + mediafile_id).html(content);
 	update_visits_accessed(mediafile_id)
 }  // show_mediafile_preview()
+
 
 function update_visits_accessed(mediafile_id) {
 	// Increment visits and set current date & time as accessed value for the given mediafile

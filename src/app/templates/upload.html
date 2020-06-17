@@ -46,6 +46,16 @@
 	</div>
 </form>
 
+<script>
+    const upload = document.querySelector("#upload");
+    upload.addEventListener("change", (event) => {
+        const files = event.target.files;
+        for (let file of files) {
+            const date = new Date(file.lastModified);
+            document.querySelector("#last_modified").value = date.valueOf()
+        }
+    });
+</script>
 <br>
 
 <div class="card">

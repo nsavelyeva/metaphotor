@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from wtforms import Form, validators, ValidationError, \
-                    StringField, PasswordField, TextAreaField, \
+                    StringField, PasswordField, HiddenField, TextAreaField, \
                     SelectField, FloatField, DecimalField
 from flask_wtf.file import FileField
 from app import app
@@ -90,7 +90,8 @@ class SettingsForm(Form):
 
 class UploadForm(Form):
     upload = FileField('Upload media file')
+    last_modified = HiddenField('', default=0)
     folder = StringField('Move to folder', [validators.Length(min=5, max=1024),
-                                            validators.Regexp('[a-zA-Z0-9/\.]', message="Invalid path"),],
+                                            validators.Regexp('[a-zA-Z0-9/\.]', message='Invalid path'),],
                          default=os.path.join(app.config['MEDIA_FOLDER'], 'uploads'),
                          render_kw={'size': 70})

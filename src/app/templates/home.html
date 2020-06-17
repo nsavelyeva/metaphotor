@@ -60,8 +60,11 @@
 				<ul>
 					<li>Discover photo and video files on the local storage and display the ongoing scan progress.
 						Note: video will be forcibly converted to MP4.</li>
+					<li>Support full scans and re-scans of media folder, incremental scans of watched ingest-folder and
+						upload of single media files with auto-complete hints suggesting paths and last modified date and time preserved.</li>
 					<li>Sophisticated search for media files in the database based on their metadata - by tags/year/location/... .</li>
-					<li>Read/Modify metadata inside photo and video files.</li>
+					<li>Read/Modify metadata inside photo and video files.
+						Note: move files simply by changing their paths in the Edit form.</li>
 					<li>Compare metadata stored in the database and metadata stored inside media files.</li>
 					<li>Statistics in the form of pie charts and histograms.</li>
 					<li>Geo positioning of a photo/video on the world map including indication of snapshots count per country.</li>
@@ -105,10 +108,17 @@
 					<li>Import video and photo files:
 						<ul>
 							<li><a href="/login">Login</a> as <i>admin/admin</i> (note, default admin password can be changed <a href="/users/edit/1">here</a>).</li>
-							<li>At <a href="/settings">settings</a> make sure the absolute path to the media folder is correct
+							<li>At <a href="/settings">settings page</a> make sure the absolute path to the media folder is correct
 								(by default, it should be <i>/opt/metaphotor/app/media</i> - i.e. the path inside metaphotor_web container,
 								where the path from the host machine [as set in .env file: MEDIA_FOLDER_ABS_PATH=/mnt/media] is mapped to).
 								and click on <b>Scan Media Files</b> button.
+							</li>
+							<li>No need to scan the whole folder again when you want to add media files -
+								either use <a href="/mediafiles/add">upload form</a> to add media files one by one and optionally modify metadata,
+								or put the files into the WATCH_FOLDER (by default, it should be <i>/opt/metaphotor/app/watch</i>),
+								navigate to <a href="/settings">settings page</a> and click on <b>Incremental Scan</b> button
+								to ingest multiple media files at once
+								(new files will be moved from WATCH_FOLDER to MEDIA_FOLDER with folder structure preserved).
 							</li>
 						</ul>
 					</li>
