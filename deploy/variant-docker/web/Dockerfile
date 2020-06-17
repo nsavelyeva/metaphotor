@@ -1,4 +1,4 @@
-FROM python:3.7-alpine3.8
+FROM python:3.8.3-alpine3.12
 MAINTAINER Natallia Savelyeva
 
 RUN apk --update add gcc libgcc linux-headers musl-dev zlib-dev jpeg-dev postgresql-dev
