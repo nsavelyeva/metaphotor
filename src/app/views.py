@@ -432,12 +432,17 @@ def upload_media_file():
         user_id = session.get('user_id', 0)  # in fact, user_id is never 0 (we use @login_required)
         upload_result = helpers.upload_file(user_id, request, app.config)
         if not upload_result.value:
+            for error in upload_result.errors:
+                flash(error, 'danger')
             return redirect(url_for('upload_media_file'))
         add_result = helpers.add_mediafile(user_id, upload_result.value, app.config)
         errors = upload_result.errors + add_result.errors
-        for error in errors:
-            flash(error, 'danger')
-        if not errors:
+        if errors:
+            for error in errors:
+                flash(error, 'danger')
+            if not upload_result.errors and os.path.isfile(upload_result.value):
+                os.remove(upload_result.value)
+        else:
             flash('File "%s" has been uploaded and saved in the database.' % upload_result.value,
                   'success')
             return redirect(url_for('edit_mediafile', mediafile_id=add_result.value.id))
