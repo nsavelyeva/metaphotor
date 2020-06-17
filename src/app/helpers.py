@@ -1,4 +1,5 @@
 import os
+import time
 import subprocess
 import shutil
 import json
@@ -118,7 +119,7 @@ def get_locations_choices():
 
     :return: a list of tuples (location_id, 'city, country').
     """
-    locations = [(loc.id, '%s, %s' % (loc.city.title(), loc.country.title()))
+    locations = [(loc.id, '%s, %s' % (loc.country.title(), loc.city.title()))
                  for loc in db_queries.get_all_locations()]
     return locations
 
@@ -179,6 +180,9 @@ def upload_file(user_id, request, app_config, file_name=None):
                     data.errors.append('Cannot upload file: already exists.')
                 else:
                     upload.save(data.value)
+                    last_accessed_timestamp = time.time()
+                    last_modified_timestamp = int(request.form.get('last_modified')) / 1000.0
+                    os.utime(data.value, (last_accessed_timestamp, last_modified_timestamp or last_accessed_timestamp))
             else:
                 msg = 'Allowed extensions are %s.' % ', '.join(app_config['ALLOWED_EXTENSIONS'])
                 data.errors.append('Cannot upload file: file is not accepted. ' + msg)
