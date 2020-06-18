@@ -330,8 +330,9 @@ def create_location(city, country, code, latitude=None, longitude=None):
             db_session.commit()
         except exc.IntegrityError as err:
             db_session.rollback()
+            location = find_location_by_attributes(city, country)
             return 'Location "%s, %s" has not been added - already exists: %s.' \
-                   % (city, country, err), 'warning', None
+                   % (city, country, err), 'warning', location
     else:
         return 'Location "%s, %s" has not been added - bad values.' \
                % (city, country), 'warning', None
