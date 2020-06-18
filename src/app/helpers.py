@@ -324,7 +324,9 @@ def add_mediafile(user_id, path, app_config):
                                    ffmpeg_path=app_config['FFMPEG_PATH'],
                                    ffprobe_path=app_config['FFPROBE_PATH'])
     # File creation year of the original file
-    created = format_timestamp(get_file_ctime(path), '%Y-%m-%d %H:%M:%S')
+    timestamp = int(get_file_ctime(path))
+    timestamp = timestamp // 1000 if len(str(timestamp)) > 10 else timestamp
+    created = format_timestamp(timestamp, '%Y-%m-%d %H:%M:%S')
     # Convert non-MP4 videos into MP4 (tested for '3gp', 'mpg', 'mpeg', 'mov', 'avi' - works well)
     if multimedia.path[multimedia.path.rfind('.') + 1:].lower() not in ['jpg', 'jpeg', 'mp4']:
         metadata = '-metadata copyright="%s" ' % created

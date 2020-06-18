@@ -210,12 +210,16 @@ class Photo(Media):
             # Then just keep file creation time and extract year from it:
             timestamp = get_file_ctime(self.path)
             if timestamp:
-                self.created = format_timestamp(timestamp, '%Y-%m-%d %H:%M:%S')
+                timestamp = int(timestamp)
+                self.created = format_timestamp(timestamp // 1000 if len(str(timestamp)) > 10 else timestamp,
+                                                '%Y-%m-%d %H:%M:%S')
             self.year = self._get_year() or ''
             return False
         self.title = self.__get_metadata_value('0th', piexif.ImageIFD.DocumentName)
         self.description = self.__get_metadata_value('0th', piexif.ImageIFD.ImageDescription)
-        self.comment = piexif.helper.UserComment.load(self.metadata['Exif'][piexif.ExifIFD.UserComment])
+        self.comment = self.__get_metadata_value('Exif', piexif.ExifIFD.UserComment).replace('ASCII', '')
+        # Unfortunately, below replacement of the above command fails with KeyError: 37510 when UserComment is missing:
+        # self.comment = piexif.helper.UserComment.load(self.metadata['Exif'][piexif.ExifIFD.UserComment])
         self.tags = self.__get_metadata_value('0th', piexif.ImageIFD.ImageHistory)
         self.created = self._get_exif_datetime() or ''
         self.year = self.year or self._get_year() or ''
