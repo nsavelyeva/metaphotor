@@ -25,10 +25,10 @@ def stats_data_by_type():
     """Collect entries from database and organize them into a structure acceptable by highcharts."""
     photos = db_session.query(MediaFiles.size).filter(MediaFiles.duration == 0)
     videos = db_session.query(MediaFiles.size).filter(MediaFiles.duration > 0)
-    result = [{'name': 'Photos',
+    result = [{'name': 'Photos', 'color': '#76BCEB',
                'data': [photos.with_entities(func.sum(MediaFiles.size)).all()[0][0],
                         photos.count()]},
-              {'name': 'Videos',
+              {'name': 'Videos', 'color': '#397DAA',
                'data': [videos.with_entities(func.sum(MediaFiles.size)).all()[0][0],
                         videos.count()]}]
     return result
@@ -65,10 +65,11 @@ def stats_data_by_year():
         data_by_type_year.append({'name': year,
                                   'data': [photos_by_year[year], videos_by_year[year]]})
     data_by_year_type = {'years': years,
-                         'values': [{'name': 'Videos',
-                                     'data': [count for year, count in videos_by_year.items()]},
-                                    {'name': 'Photos',
-                                     'data': [count for year, count in photos_by_year.items()]}]}
+                         'values': [{'name': 'Photos', 'color': '#76BCEB',
+                                     'data': [count for year, count in photos_by_year.items()]},
+                                    {'name': 'Videos', 'color': '#397DAA',
+                                     'data': [count for year, count in videos_by_year.items()]}
+                                    ]}
     return data_by_year_type, data_by_type_year
 
 
