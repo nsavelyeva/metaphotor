@@ -113,12 +113,32 @@
 								where the path from the host machine [as set in .env file: MEDIA_FOLDER_ABS_PATH=/mnt/media] is mapped to).
 								and click on <b>Scan Media Files</b> button.
 							</li>
+							<li>On re-scan, media files will remain intact, and only the entries which paths start from MEDIA_FOLDER value will be removed from the database.
+								Then, a scan of MEDIA_FOLDER will be performed as usual and all discovered files will have public ownership.
+							</li>
 							<li>No need to scan the whole folder again when you want to add media files -
 								either use <a href="/mediafiles/add">upload form</a> to add media files one by one and optionally modify metadata,
 								or put the files into the WATCH_FOLDER (by default, it should be <i>/opt/metaphotor/app/watch</i>),
 								navigate to <a href="/settings">settings page</a> and click on <b>Incremental Scan</b> button
 								to ingest multiple media files at once
 								(new files will be moved from WATCH_FOLDER to MEDIA_FOLDER with folder structure preserved).
+							</li>
+						</ul>
+					</li>
+					<li>Edit metadata of media files:
+						<ul>
+							<li>Metadata is considered as changed if any of the following fields change: title, description, tags, comment, location_id, coords.
+							    <br>Hence, modifying the file path will just update the path in the database and move the file to the new location, without writing metadata into the file.
+								<br>Likewise, changing file ownership will only affect visibility of files returned by the search and will not write metadata into the file.
+							</li>
+							<li>It is not recommended to edit entries in the database manually via SQL because the metadata will not be written into the media file.
+								However, if re-scans are not planned, this can be done, for instance, to add gps data to multiple media files at once if a city is mentioned in file path:
+								<pre>    UPDATE mediafiles
+    SET location_id = locations.id, coords = locations.latitude || ',' || locations.longitude
+    FROM locations
+    WHERE mediafiles.path ILIKE '%' || locations.city || '%';</pre>
+								Additionally, you can remove unreadable UserComment values by setting empty strings to comment field:
+								<pre>    UPDATE mediafiles SET comment='' WHERE comment !~ '["''<>a-zA-Z0-9_@!,:;\-\.\(\)\[\]\*$#&%]'</pre>
 							</li>
 						</ul>
 					</li>
