@@ -148,7 +148,7 @@ class Photo(Media):
         self.metadata['0th'][piexif.ImageIFD.DocumentName] = title
         self.metadata['0th'][piexif.ImageIFD.ImageDescription] = description
         self.metadata['0th'][piexif.ImageIFD.ImageHistory] = tags
-        self.metadata['Exif'][piexif.ExifIFD.UserComment] = piexif.helper.UserComment.dump(comment)
+        self.metadata['Exif'][piexif.ExifIFD.UserComment] = piexif.helper.UserComment.dump(comment, encoding='unicode')
         # GPSMapDatum example value: '53.87303611111111,27.65790833333333,minsk,belarus,by'
         if gps:
             self.metadata['GPS'][piexif.GPSIFD.GPSMapDatum] = \
@@ -215,8 +215,7 @@ class Photo(Media):
             return False
         self.title = self.__get_metadata_value('0th', piexif.ImageIFD.DocumentName)
         self.description = self.__get_metadata_value('0th', piexif.ImageIFD.ImageDescription)
-        self.comment = self.__get_metadata_value('Exif', piexif.ExifIFD.UserComment) \
-                           .replace('ASCII', '')
+        self.comment = piexif.helper.UserComment.load(self.metadata['Exif'][piexif.ExifIFD.UserComment])
         self.tags = self.__get_metadata_value('0th', piexif.ImageIFD.ImageHistory)
         self.created = self._get_exif_datetime() or ''
         self.year = self.year or self._get_year() or ''
