@@ -342,8 +342,7 @@ def add_mediafile(user_id, path, app_config):
                       for item in [multimedia.gps['latitude'], multimedia.gps['longitude']] if item)
     entry = MediaFiles(user_id, multimedia.path, multimedia.duration, multimedia.title,
                        multimedia.description, multimedia.comment, ' '.join(tags), coords,
-                       location.id if location else 0,
-                       multimedia.year, multimedia.created, multimedia.size)
+                       location.id, multimedia.year, multimedia.created, multimedia.size)
     msg, style, obj = db_queries.create_mediafile(user_id, entry)
     logging.debug('%s %s %s %s\n' % (get_time_str(), style.upper(), path, msg))
     return Data(obj, [] if obj else [msg])

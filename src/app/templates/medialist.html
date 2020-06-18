@@ -39,11 +39,11 @@
 			<br>{{ row['title'] }}
 			<div id="preview-{{ row['id'] }}"></div>
 		</td>
-		<td>{{ row['tags'] }}</td>
-		<td>
+		<td style="min-width:100px">{{ row['tags'] }}</td>
+		<td style="min-width:80px">
 			<img src="{{ url_for('static', filename='flags/blank.gif') }}" class="flag flag-{{ row['code'].lower() }}" title="{{ row['country'] | title }}"  alt="{{ row['country'] | title }}" />
 		</td>
-		<td class="text-right">
+		<td class="text-right" style="min-width:150px">
 			<a href="/{{ table }}/inspect/{{ row['id'] }}" ><button type="button" class="btn btn-info btn-sm" title="Inspect"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 			<a href="/{{ table }}/view/{{ row['id'] }}" ><button type="button" class="btn btn-info btn-sm" title="View"><i class="fa fa-binoculars" aria-hidden="true"></i></button></a>
 			<a href="/{{ table }}/edit/{{ row['id'] }}" ><button type="button" class="btn btn-info btn-sm" title="Edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button></a>

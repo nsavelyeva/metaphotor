@@ -45,11 +45,11 @@
 				<div class="col-4">
 					<legend>View mode:</legend>
 					<div class="form-check">
-						<input type="radio" id="view_mode_list" name="view_mode" value="list" {% if ('view_mode' in args and args['view_mode'] == 'list' ) or ('view_mode' not in args) %}checked="checked"{% endif %}>
+						<input type="radio" id="view_mode_list" name="view_mode" value="list" {% if 'view_mode' in args and args['view_mode'] == 'list' %}checked="checked"{% endif %}>
 						<label  class="form-check-label" for="view_mode_list">List</label>
 					</div>
 					<div class="form-check">
-						<input type="radio" id="view_mode_tiles" name="view_mode" value="tiles" {% if 'view_mode' in args and args['view_mode'] == 'tiles' %}checked="checked"{% endif %}>
+						<input type="radio" id="view_mode_tiles" name="view_mode" value="tiles" {% if ('view_mode' in args and args['view_mode'] == 'tiles' ) or ('view_mode' not in args) %}checked="checked"{% endif %}>
 						<label  class="form-check-label" for="view_mode_tiles">Tiles</label>
 					</div>
 					<div class="form-check">
