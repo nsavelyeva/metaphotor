@@ -340,7 +340,7 @@ def list_mediafiles(page):
     query = db_queries.get_all_mediafiles(session.get('user_id', 0), params, fields)
     pagination = paginate(query, page, app.config['ITEMS_PER_PAGE'])
     flash('Found items: %s.' % pagination.total, 'info')
-    data, points = helpers.get_media_per_countries_counts(session.get('user_id', 0), query.all())
+    data, points = helpers.get_media_per_countries_counts(query.all())
     template = 'media%s.html' % params['view_mode'] \
         if params.get('view_mode') in ['list', 'tiles', 'gallery'] else 'medialist.html'
     return render_template(template, rows=pagination.items, pagination=pagination,

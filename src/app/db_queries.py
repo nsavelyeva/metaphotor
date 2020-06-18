@@ -202,8 +202,8 @@ def find_user_by_login(login, as_dict=False):
 def find_location_by_attributes(city, country):
     """Retrieve location data by city and country."""
     query = db_session.query(Locations) \
-                      .filter(and_(Locations.city == city.strip().lower(),
-                                   Locations.country == country.strip().lower())
+                      .filter(and_(Locations.city == city.strip().title(),
+                                   Locations.country == country.strip().title())
                               )
     logging.debug('Query executed: %s' % query)
     data = query.first()
