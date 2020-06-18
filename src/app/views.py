@@ -76,7 +76,7 @@ def scan_status():
 
     :return: a jsonified response of scan statistics.
     """
-    with open('scan.json', 'r+') as scan_progress_file:
+    with open('scan.json', 'r') as scan_progress_file:
         data = json.loads(scan_progress_file.read())
     return jsonify(total=data['total'],
                    failed=data['failed'],
@@ -314,8 +314,8 @@ def geo_map():
     fields = [MediaFiles.coords, MediaFiles.location_id,
               Locations.city, Locations.country, Locations.code]
     params = {'search': '', 'tags_matching': 'lazy', 'year': 'any', 'location': 'any'}
-    query = db_queries.get_all_mediafiles(-1, params, fields)
-    data, points = helpers.get_media_per_countries_counts(session.get('user_id', 0), query.all())
+    mediafiles = db_queries.get_all_mediafiles(-1, params, fields).all()
+    data, points = helpers.get_media_per_countries_counts(mediafiles)
     return render_template('map.html', session=session, points=points, data=data)
 
 
@@ -424,8 +424,8 @@ def upload_media_file():
     Once the file is uploaded, the entry about it gets created in the database,
     and the user will be redirected to the edit form to fill in metadata details.
     At that 'edit' stage the user can:
-     - change file ownership (by modifying user_id)
-     - move the file to a different folder by changing its path, nonexisting folders will be created
+     - change file ownership (by modifying user_id),
+     - move the file to a different folder by changing its path, non-existing folders will be created.
     """
     form = UploadForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -461,7 +461,7 @@ def edit_mediafile(mediafile_id):
     - update metadata in the database (if successful, next is allowed to proceed with);
     - add new tags if any to the database;
     - finally, inject metadata into the file on disk
-      (using FFMPEG executable for videos or Python module pyexif to edit EXIF tags for photos).
+      (using FFMPEG executable for videos or Python module piexif to edit EXIF tags for photos).
     """
     media = db_queries.get_mediafile(mediafile_id)
     if not media:
