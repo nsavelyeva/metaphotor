@@ -4,6 +4,7 @@ import subprocess
 import shutil
 import json
 import logging
+import traceback
 from collections import OrderedDict
 from multiprocessing.dummy import Pool as ThreadPool, Value, Lock
 from werkzeug.utils import secure_filename
@@ -273,12 +274,13 @@ def single_scan(app_config, user_id, path, passed, lock_passed, failed, lock_fai
         path = path.replace(app_config['WATCH_FOLDER'], app_config['MEDIA_FOLDER'], 1)
         result = move_file(old_path, path)
         if result.errors:
-            write_scan_error('%s failed: cannot move to %s due to %s' % (old_path, path, ';'.join(result.errors)))
+            write_scan_error('%s failed: cannot move to %s due to %s\n%s\n' %
+                             (old_path, path, ';'.join(result.errors), traceback.format_exc()))
             return False
     try:
         data = add_mediafile(user_id, path, app_config)
     except Exception as err:
-        msg = '%s failed due to %s' % (path, err)
+        msg = '%s failed due to %s\n%s\n' % (path, err, traceback.format_exc())
         write_scan_error(msg)
         data = Data(None, [msg])
     with open('scan.json', 'r+') as scan_progress_file:
@@ -342,7 +344,8 @@ def add_mediafile(user_id, path, app_config):
                       for item in [multimedia.gps['latitude'], multimedia.gps['longitude']] if item)
     entry = MediaFiles(user_id, multimedia.path, multimedia.duration, multimedia.title,
                        multimedia.description, multimedia.comment, ' '.join(tags), coords,
-                       location.id, multimedia.year, multimedia.created, multimedia.size)
+                       location.id if location else 0,
+                       multimedia.year, multimedia.created, multimedia.size)
     msg, style, obj = db_queries.create_mediafile(user_id, entry)
     logging.debug('%s %s %s %s\n' % (get_time_str(), style.upper(), path, msg))
     return Data(obj, [] if obj else [msg])
@@ -389,29 +392,38 @@ def collect_settings(app_config):
     return settings
 
 
-def get_media_per_countries_counts(user_id, mediafiles):
+def get_media_per_countries_counts(mediafiles):
     """
     Prepare data to be displayed on highmaps: a number of shapshots made in the country, geo points.
 
-    :param user_id: a user id, needed to collect owned items.
     :param mediafiles: a list of dicts or query.all()-like results of mediafiles collected from DB.
 
     :return: a tuple of jsonified data (counts, points) prepared to be displayed on highmaps.
     """
-    counts = []  # a list of dicts, each contains a number of vidoes/photos made in the country
-    points = []  # GeoPoints, list of dicts: {'name': <city>, 'lat': <latitude>, 'lon': <longitude>}
+    points = []       # GeoPoints, list of dicts: {'name': <city>, 'lat': <latitude>, 'lon': <longitude>}
+    tmp_counts = {}   # A dictionary to group snapshots counts per country.
+    tmp_codes = {}    # A dictionary to keep country codes for countries.
+    tmp_cities = {}  # A dictionary to group snapshots counts per city.
     for mediafile in mediafiles:
         if 'coords' not in mediafile:
             mediafile = mediafile._asdict()
         coords = mediafile['coords'].split(',')
-        params = {'search': '', 'view_mode': 'list', 'tags_matching': 'lazy', 'year': 'any',
-                  'ownership_public': 'on', 'ownership_private': 'on',
-                  'location': mediafile['location_id']}  # always collect public and owned files
         for country in COUNTRIES:
             if mediafile['code'].upper() == country['code']:
-                count = len(db_queries.get_all_mediafiles(user_id, params).all())
-                counts.append({'name': country['name'], 'value': count, 'code': mediafile['code']})
-                points.append({'name': mediafile['city'].title(),
-                               'lat': coords[0], 'lon': coords[-1]})
+                if country['name'] in tmp_counts:
+                    tmp_counts[country['name']] += 1
+                else:
+                    tmp_counts.update({country['name']: 1})
+                    tmp_codes.update({country['name']: country['code']})
+                if mediafile['city'] in tmp_cities:
+                    tmp_cities[mediafile['city']] += 1
+                else:
+                    tmp_cities.update({mediafile['city']: 1})
+                    points.append({'name': mediafile['city'].title(),
+                                   'lat': coords[0], 'lon': coords[-1]})
+    counts = [{'name': country_name,
+               'value': tmp_counts[country_name],
+               'code': tmp_codes[country_name]}
+              for country_name in tmp_counts]
     points = {'name': 'Points', 'type': 'mappoint', 'data': points}
     return json.dumps(counts), json.dumps(points)
