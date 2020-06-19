@@ -335,7 +335,7 @@ def list_mediafiles(page):
     fields = [MediaFiles.id, MediaFiles.year, MediaFiles.path, MediaFiles.tags, MediaFiles.coords,
               MediaFiles.location_id, Locations.city, Locations.country, Locations.code]
     locations = db_queries.get_all_locations([Locations.id, Locations.city, Locations.country])
-    params = request.args or {'search': '', 'tags_matching': 'lazy', 'view_mode': 'list',
+    params = request.args or {'search': '', 'tags_matching': 'lazy', 'view_mode': 'tiles',
                               'ownership_public': 'on', 'year': 'any', 'location': 'any'}
     query = db_queries.get_all_mediafiles(session.get('user_id', 0), params, fields)
     pagination = paginate(query, page, app.config['ITEMS_PER_PAGE'])
