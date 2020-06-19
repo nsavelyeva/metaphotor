@@ -342,7 +342,7 @@ def list_mediafiles(page):
     flash('Found items: %s.' % pagination.total, 'info')
     data, points = helpers.get_media_per_countries_counts(query.all())
     template = 'media%s.html' % params['view_mode'] \
-        if params.get('view_mode') in ['list', 'tiles', 'gallery'] else 'medialist.html'
+        if params.get('view_mode') in ['list', 'tiles', 'gallery'] else 'mediatiles.html'
     return render_template(template, rows=pagination.items, pagination=pagination,
                            session=session, args=request.args, locations=locations,
                            params='&'.join('%s=%s' % (key, value) for key, value in params.items()),
