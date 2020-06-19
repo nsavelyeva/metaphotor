@@ -245,7 +245,7 @@ def __top_stats(top_field_name, user_id=None, limit=10, sort_desc=True, randomiz
               MediaFiles.location_id, Locations.city, Locations.country, Locations.code]
     locations = db_queries.get_all_locations([Locations.id, Locations.city, Locations.country])
     query = db_queries.top_mediafiles(user_id, fields, model_field, sort_desc, limit, randomize)
-    data, points = helpers.get_media_per_countries_counts(user_id, query.all())
+    data, points = helpers.get_media_per_countries_counts(query.all())
     return render_template('top.html', session=session, rows=paginate(query, 1, limit).items,
                            locations=locations, points=points, data=data, info=info,
                            top_field=top_field_name, fields=['year', 'path'] + [top_field_name])
@@ -366,7 +366,7 @@ def view_mediafile(mediafile_id):
     media_file = db_queries.get_mediafile_details(mediafile_id, fields)
     if not media_file:
         abort(404, 'Media file #%s is missing (was deleted or never existed).' % mediafile_id)
-    data, points = helpers.get_media_per_countries_counts(session.get('user_id', 0), [media_file])
+    data, points = helpers.get_media_per_countries_counts([media_file])
     return render_template('item.html', session=session, table='mediafiles', fields=media_file,
                            item=media_file, points=points, data=data,
                            size=helpers.pretty_size(media_file['size']))
