@@ -138,7 +138,7 @@
     FROM locations
     WHERE mediafiles.path ILIKE '%' || locations.city || '%';</pre>
 								Additionally, you can remove unreadable UserComment values by setting empty strings to comment field:
-								<pre>    UPDATE mediafiles SET comment='' WHERE comment !~ '["''<>a-zA-Z0-9_@!,:;\-\.\(\)\[\]\*$#&%]'</pre>
+								<pre>    UPDATE mediafiles SET comment='' WHERE comment !~ '["''<>a-zA-Z0-9_ @!,:;\-\.\(\)\[\]\*$#&%]'</pre>
 							</li>
 						</ul>
 					</li>
