@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask
+  namespace: metaphotor
+  labels:
+    name: flask
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask
+  template:
+    metadata:
+      labels:
+        app: flask
+    spec:
+      containers:
+      - name: flask
+        image: nsavelyeva/metaphotor:latest
+        command: ["uwsgi"]
+        args: ["--ini", "/etc/uwsgi.ini", "--static-map", "/static=/opt/metaphotor/app/static"]
+        env:
+        - name: POSTGRES_DB
+          value: metaphotor
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: password
+        volumeMounts:
+          - name: uwsgi-sock
+            mountPath: /tmp
+#          - name: metaphotor-settings
+#            mountPath: /opt/metaphotor/conf/custom.json
+#            subPath: custom.json
+#          - name: cm
+#            mountPath: /opt/metaphotor/conf/custom.json
+#            subPath: custom.json
+#            readOnly: false
+      volumes:
+        - name: uwsgi-sock
+          persistentVolumeClaim:
+            claimName: uwsgi-socket-claim
+#        - name: cm
+#          configMap:
+#            name: test-cm
+#        - name: metaphotor-settings
+#          persistentVolumeClaim:
+#            claimName: metaphotor-settings-claim
+      restartPolicy: Always

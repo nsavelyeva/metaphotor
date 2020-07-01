@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql
+  namespace: metaphotor
+  labels:
+    service: postgresql
+spec:
+  selector:
+    service: postgresql
+  type: ClusterIP
+  ports:
+  - port: 5432

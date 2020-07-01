@@ -1,0 +1,15 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+    name: uwsgi-socket-claim
+    namespace: metaphotor
+    labels:
+      app: metaphotor
+spec:
+    accessModes:
+      - ReadWriteMany
+    storageClassName: standard
+    volumeName: uwsgi-sock
+    resources:
+        requests:
+            storage: 1Mi

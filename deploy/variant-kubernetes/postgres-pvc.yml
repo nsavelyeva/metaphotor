@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: metaphotor
+  labels:
+    type: local
+spec:
+  accessModes:
+    #- ReadWriteOnce
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  volumeName: postgres-pv
+  storageClassName: standard
