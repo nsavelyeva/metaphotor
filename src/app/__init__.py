@@ -20,26 +20,22 @@ dictConfig({
 })
 
 
-app = Flask(__name__, template_folder='templates')
-
-
-# Create upload and download folders if they do not exist:
-app.config.from_object(conf.DevConf)
-for folder in [app.config['UPLOAD_FOLDER'], 'app/%s' % app.config['DOWNLOAD_FOLDER']]:
-    conf.mkdir_if_not_exists(app.config['APP_FOLDER'], folder)
-
-
-app.secret_key = 'While drinkers drink drinks, builders build buildings & coders code code.'
-app.url_map.strict_slashes = False
-
-
 def url_for_other_page(page):
     args = request.view_args.copy()
     args['page'] = page
     return url_for(request.endpoint, **args)
 
 
+app = Flask(__name__, template_folder='templates')
+app.secret_key = 'While drinkers drink drinks, builders build buildings & coders code code.'
+app.url_map.strict_slashes = False
 app.jinja_env.globals.update(url_for_other_page=url_for_other_page)
+
+
+# Create upload and download folders if they do not exist:
+app.config.from_object(conf.DevConf)
+for folder in [app.config['UPLOAD_FOLDER'], 'app/%s' % app.config['DOWNLOAD_FOLDER']]:
+    conf.mkdir_if_not_exists(app.config['APP_FOLDER'], folder)
 
 
 from .views import *

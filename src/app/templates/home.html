@@ -102,7 +102,10 @@
 							<li>Clone metaphotor app - e.g. run the command <code>git clone https://github.com/nsavelyeva/metaphotor</code> in a terminal window.</li>
 							<li>Navigate to the folder <i>metaphotor/deploy</i>.</li>
 							<li>Adjust values for environment variables in <i>.env</i> file.</li>
-							<li>Run the command <code>docker-compose up -d --build</code> in a terminal window.</li>
+							<li>Run the command <code>docker-compose up -d --build</code> in a terminal window.
+								<br><em>Note:</em> in case of below error, try <code>docker logout</code> or remove <code>~/.docker/config.json</code> file:
+								<xmp>docker.credentials.errors.InitializationError: docker-credential-gcloud not installed or not available in PATH</xmp>
+							</li>
 						</ul>
 					</li>
 					<li>Import video and photo files:
