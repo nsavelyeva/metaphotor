@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: metaphotor-settings
+  name: metaphotor-persist
   labels:
     type: local
 spec:
   storageClassName: standard
   capacity:
-    storage: 1Ki
+    storage: 2Mi
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: /data/custom.json
+    path: /data/persist

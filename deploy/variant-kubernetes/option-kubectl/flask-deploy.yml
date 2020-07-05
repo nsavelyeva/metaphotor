@@ -15,6 +15,14 @@ spec:
       labels:
         app: flask
     spec:
+      initContainers:
+      - name: allow-nginx
+        image: busybox:latest
+        command: ["chown"]
+        args: ["-R", "101:101", "/opt/metaphotor/persist"]
+        volumeMounts:
+        - name: metaphotor-persist
+          mountPath: /opt/metaphotor/persist
       containers:
       - name: flask
         image: nsavelyeva/metaphotor:latest
@@ -36,21 +44,25 @@ spec:
         volumeMounts:
           - name: uwsgi-sock
             mountPath: /tmp
-#          - name: metaphotor-settings
-#            mountPath: /opt/metaphotor/conf/custom.json
-#            subPath: custom.json
-#          - name: cm
-#            mountPath: /opt/metaphotor/conf/custom.json
-#            subPath: custom.json
-#            readOnly: false
+          - name: metaphotor-persist
+            mountPath: /opt/metaphotor/persist
+          - name: nfs-media
+            mountPath: /opt/metaphotor/app/media
+          - name: nfs-watch
+            mountPath: /opt/metaphotor/app/watch
       volumes:
         - name: uwsgi-sock
           persistentVolumeClaim:
             claimName: uwsgi-socket-claim
-#        - name: cm
-#          configMap:
-#            name: test-cm
-#        - name: metaphotor-settings
-#          persistentVolumeClaim:
-#            claimName: metaphotor-settings-claim
+        - name: metaphotor-persist
+          persistentVolumeClaim:
+            claimName: metaphotor-persist-claim
+        - name: nfs-media
+          nfs:
+            server: 192.168.1.17
+            path: /media/nfs/media
+        - name: nfs-watch
+          nfs:
+            server: 192.168.1.17
+            path: /media/nfs/watch
       restartPolicy: Always

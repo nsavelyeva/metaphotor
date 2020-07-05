@@ -1,4 +1,0 @@
-kind: Cluster
-apiVersion: cluster.x-k8s.io/v1alpha2
-featureGates:
-  AnyVolumeDataSource: true

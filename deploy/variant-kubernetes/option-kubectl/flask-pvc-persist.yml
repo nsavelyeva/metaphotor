@@ -1,7 +1,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-    name: metaphotor-settings-claim
+    name: metaphotor-persist-claim
     namespace: metaphotor
     labels:
       app: metaphotor
@@ -9,10 +9,7 @@ spec:
     accessModes:
       - ReadWriteMany
     storageClassName: standard
-    dataSource:
-        name: test-cm
-        kind: ConfigMap
-    volumeName: metaphotor-settings
+    volumeName: metaphotor-persist
     resources:
         requests:
-            storage: 1Ki
+            storage: 2Mi

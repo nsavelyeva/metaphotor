@@ -3,6 +3,7 @@ kind: Ingress
 metadata:
   name: kube-ingress
   annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 1024m
 spec:
   rules:
   - host: metaphotor.info

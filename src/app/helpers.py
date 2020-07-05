@@ -27,9 +27,10 @@ class Data:
 
 def write_scan_error(msg):
     """
-    Append the given message as a new line to the text file 'scan_err.log', which is cleaned before each scan/rescan.
+    Append the given message as a new line to the text file persist/scan_err.log
+    which is cleaned before each scan/re-scan.
     """
-    with open('scan_err.log', 'a') as scan_errors_file:
+    with open(os.path.join('persist', 'scan_err.log'), 'a') as scan_errors_file:
         scan_errors_file.write(msg + '\n')
 
 
@@ -175,7 +176,7 @@ def upload_file(user_id, request, app_config, file_name=None):
                                                        app_config['UPLOAD_FOLDER'],
                                                        str(user_id))
                 if not os.path.exists(user_folder):
-                    os.makedirs(user_folder, 0o700, exist_ok=True)
+                    os.makedirs(user_folder, 0o777, exist_ok=True)
                 data.value = os.path.join(user_folder, file_name)
                 if os.path.isfile(data.value):
                     data.errors.append('Cannot upload file: already exists.')
@@ -194,7 +195,7 @@ def collect_media_files(parent_folder, app_config, check_db=False):
     """
     Collect absolute paths of media files from the given folder recursively into a list of strings.
     Files having not supported extensions will be skipped.
-    Errors occurred during the scan will be saved to scan_err.log file (note: this file is cleaned before each scan).
+    Errors occurred during the scan will be saved to persist/scan_err.log (note: this file is cleaned before each scan).
 
     :param parent_folder: a folder to scan the files in.
     :param app_config: a dictionary of app settings to use values of allowed extensions, media and watch folders.
@@ -219,10 +220,10 @@ def collect_media_files(parent_folder, app_config, check_db=False):
                     all_media_files.append(path)
             else:
                 declined += '%s;' % path
-    with open('scan.json', 'w') as scan_progress_file:
+    with open(os.path.join('persist', 'scan.json'), 'w') as scan_progress_file:
         data = json.dumps({'total': len(all_media_files), 'passed': 0, 'failed': 0, 'declined': declined})
         scan_progress_file.write(data)
-    with open('scan_err.log', 'w'):
+    with open(os.path.join('persist', 'scan_err.log'), 'w'):
         pass
     return all_media_files
 
@@ -256,7 +257,7 @@ def single_scan(app_config, user_id, path, passed, lock_passed, failed, lock_fai
     Analyze a single media file:
     read EXIF tags from photo files or custom metadata from video files
     and write this information into the database.
-    The scan progress (number of total/passed/failed files) is written into 'scan.json' file.
+    The scan progress (number of total/passed/failed files) is written into 'persist/scan.json' file.
 
     :param app_config: a dictionary containing the application configuration settings (=app.config).
     :param user_id: an integer number of user id which will be considered as owner (0 for public).
@@ -283,7 +284,7 @@ def single_scan(app_config, user_id, path, passed, lock_passed, failed, lock_fai
         msg = '%s failed due to %s\n%s\n' % (path, err, traceback.format_exc())
         write_scan_error(msg)
         data = Data(None, [msg])
-    with open('scan.json', 'r+') as scan_progress_file:
+    with open(os.path.join('persist', 'scan.json'), 'r+') as scan_progress_file:
         if data.value:
             with lock_passed:
                 passed.value += 1
@@ -355,14 +356,14 @@ def add_mediafile(user_id, path, app_config):
 
 def update_settings_file(settings, conf_file_path):
     """
-    Settings are loaded from conf.py (which takes them from custom.json) at every launch.
+    Settings are loaded from conf.py (which takes them from persist/conf.json) at every launch.
     When settings are changed while app is running (through http://.../settings/update) -
     they are loaded into app.config dictionary.
-    To 'remember' them for next launches they are put into custom.json file.
-    Hence, to avoid de-synchronization, it is not recommended to edit custom.json manually.
+    To 'remember' them for next launches they are put into persist/conf.json file.
+    Hence, to avoid de-synchronization, it is not recommended to edit persist/conf.json manually.
 
     :param settings: a dictionary containing applications settings (see CUSTOM_SETTINGS in conf.py).
-    :param conf_file_path: an absolute or relative path to custom.json file.
+    :param conf_file_path: an absolute or relative path to persist/conf.json file.
     :return: True.
     """
     with open(conf_file_path, 'w') as custom_settings_file:

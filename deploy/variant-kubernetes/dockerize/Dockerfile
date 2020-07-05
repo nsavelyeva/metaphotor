@@ -7,7 +7,7 @@ COPY deploy/variant-docker/web/requirements.txt /tmp/requirements.txt
 RUN pip3 install --no-cache-dir --requirement /tmp/requirements.txt \
     && rm -f /tmp/requirements.txt
 
-RUN addgroup -S nginx && adduser -S nginx -G nginx
+RUN addgroup -S -g 101 nginx && adduser -S -u 101 nginx -G nginx
 
 RUN apk add ca-certificates ffmpeg libva-intel-driver \
     && rm -rf /var/cache/*
