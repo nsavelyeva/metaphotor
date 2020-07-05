@@ -9,7 +9,6 @@ spec:
     storage: 2Gi
   storageClassName: standard
   accessModes:
-    #- ReadWriteOnce
     - ReadWriteMany
   hostPath:
-    path: "/data/postgres-pv"
+    path: /data/postgres-pv
