@@ -157,7 +157,7 @@ def get_all_mediafiles(user_id, params=None, fields=None):
                 query = query.filter(and_(*tag_matches))
             else:
                 query = query.filter(or_(*tag_matches))
-    query = query.add_columns(*fields)
+    query = query.add_columns(*fields).order_by(func.random())
     logging.debug('Query executed: %s' % query)
     return query
 

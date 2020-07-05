@@ -11,4 +11,7 @@ RUN apk add ca-certificates ffmpeg libva-intel-driver \
     && rm -rf /var/cache/*
 
 WORKDIR /opt/metaphotor/
+
 COPY uwsgi.ini /etc/uwsgi.ini
+
+CMD uwsgi --ini /etc/uwsgi.ini

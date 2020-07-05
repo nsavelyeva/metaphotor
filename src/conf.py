@@ -1,33 +1,37 @@
 import os
-import errno
-import logging
 import json
 
 
-CONFIG_FOLDER = os.path.dirname(os.path.abspath(__file__))
-CUSTOM_SETTINGS_FILE = os.path.join(CONFIG_FOLDER, 'custom.json')
-
-
-with open(CUSTOM_SETTINGS_FILE, 'r') as _f:
-    CUSTOM_SETTINGS = json.loads(_f.read().strip())
-
-
-def mkdir_if_not_exists(abs_path, dir_name):
-    """Create all non-existing folders mentioned in the given absolute path."""
-    full_path = os.path.normpath(os.path.join(abs_path, dir_name))
+def init_conf(settings_file):
+    """
+    Create persist/conf.json file if not exists, otherwise read settings from it.
+    Return settings as a dictionary.
+    """
     try:
-        os.makedirs(full_path)
-    except OSError as err:
-        if err.errno != errno.EEXIST:
-            logging.error('Could not create directory "%s" due to error: %s.' % (full_path, err))
-            raise
-    return True
+        with open(settings_file, 'r') as _f:
+            custom_settings = json.loads(_f.read().strip())
+    except FileNotFoundError:
+        custom_settings = {'MEDIA_FOLDER': '/opt/metaphotor/app/media',
+                           'WATCH_FOLDER': '/opt/metaphotor/app/watch',
+                           'FFMPEG_PATH': '/usr/bin/ffmpeg',
+                           'FFPROBE_PATH': '/usr/bin/ffprobe',
+                           'MIN_FILESIZE': 524288,
+                           'MAX_FILESIZE': 1073741824,
+                           'ITEMS_PER_PAGE': 100}
+        with open(settings_file, 'w') as _f:
+            _f.write(json.dumps(custom_settings))
+    return custom_settings
+
+
+APP_FOLDER = os.path.dirname(os.path.abspath(__file__))  # in fact, this is the abs path of 'src' folder
+CUSTOM_SETTINGS_FILE = os.path.join(APP_FOLDER, 'persist', 'conf.json')
+CUSTOM_SETTINGS = init_conf(CUSTOM_SETTINGS_FILE)
 
 
 class BaseConf:
     """Base configuration including settings configurable by user."""
-    APP_FOLDER = CONFIG_FOLDER[:-5]  # strip '/conf' (Linux) or '\conf' (Windows)
-    CONFIG_FOLDER = CONFIG_FOLDER
+    APP_FOLDER = APP_FOLDER
+    CONFIG_FOLDER = APP_FOLDER
     SETTINGS_FILE = CUSTOM_SETTINGS_FILE
     DATABASE = os.environ.get('POSTGRES_DB', 'metaphotor')
     SQLALCHEMY_DATABASE_URI = 'postgresql://%s:%s@postgresql:5432/%s' % (

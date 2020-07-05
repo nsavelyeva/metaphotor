@@ -1,0 +1,15 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+    name: metaphotor-persist-claim
+    namespace: metaphotor
+    labels:
+      app: metaphotor
+spec:
+    accessModes:
+      - ReadWriteMany
+    storageClassName: standard
+    volumeName: metaphotor-persist
+    resources:
+        requests:
+            storage: 2Mi

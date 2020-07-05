@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: metaphotor
+  labels:
+    name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        volumeMounts:
+          - name: nginx-config
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+          - name: nginx-config
+            mountPath: /etc/nginx/uwsgi_params
+            subPath: uwsgi_params
+          - name: uwsgi-sock
+            mountPath: /tmp
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+        - name: uwsgi-sock
+          persistentVolumeClaim:
+            claimName: uwsgi-socket-claim
+      restartPolicy: Always

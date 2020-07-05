@@ -70,13 +70,13 @@ def scan_increment():
 @app.route('/_scan_status')
 def scan_status():
     """
-    On AJAX request - read scan statistics from 'scan.json' file:
+    On AJAX request - read scan statistics from 'persist/scan.json' file:
     - numbers of total/passed/failed files;
     - a string of semicolon-separated absolute paths of declined files.
 
     :return: a jsonified response of scan statistics.
     """
-    with open('scan.json', 'r') as scan_progress_file:
+    with open(os.path.join('persist', 'scan.json'), 'r') as scan_progress_file:
         data = json.loads(scan_progress_file.read())
     return jsonify(total=data['total'],
                    failed=data['failed'],
@@ -785,10 +785,10 @@ def add_user():
 @login_required
 def settings_update():
     """
-    Route to the page to change values of customizable application settings stored in custom.json.
+    Route to the page to change values of customizable application settings stored in conf.json.
     If validation of changed settings fails, user will be prompted to fill in the form again, and
     the form values will be loaded from app.config.
-    Values in app.config will be updated only if custom.json gets successfully updated.
+    Values in app.config will be updated only if conf.json gets successfully updated.
     """
     form = SettingsForm(request.form)
     if request.method == 'POST' and form.validate():
